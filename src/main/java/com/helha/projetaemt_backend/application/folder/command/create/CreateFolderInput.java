@@ -3,5 +3,5 @@ package com.helha.projetaemt_backend.application.folder.command.create;
 public class CreateFolderInput {
     public int userId;
     public String title;
-    public int parentFolderId;
+    public Integer parentFolderId; //Integer car cet attribut peut-être null
 }
