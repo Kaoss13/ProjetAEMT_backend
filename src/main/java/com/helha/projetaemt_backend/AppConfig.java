@@ -37,7 +37,7 @@ public class AppConfig {
             d.idFolder = Math.toIntExact((s.folder != null ? s.folder.id : 0));
             return d;
         });
-        // -------- FOLDER : converters
+        /*// -------- FOLDER : converters
         Converter<Integer, DbUser> userIdToUserRef = ctx -> {
             Integer id = ctx.getSource();
             if (id == null) return null;
@@ -73,7 +73,7 @@ public class AppConfig {
             d.userId = (s.getUser() != null ? s.getUser().id : 0);
             d.parentFolderId = (s.parentFolder != null ? s.parentFolder.id : null);
             return d;
-        });
+        });*/
         return modelMapper;
     }
 
