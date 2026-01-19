@@ -5,18 +5,12 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "users")
+@NoArgsConstructor
+@Data
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     public int id;
-
-    @Column(name = "user_name")
     public String userName;
 
-    @Column(name = "hash_password")
     public String hashPassword;
 }
