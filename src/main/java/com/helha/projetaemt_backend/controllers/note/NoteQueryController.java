@@ -2,6 +2,7 @@ package com.helha.projetaemt_backend.controllers.note;
 
 import com.helha.projetaemt_backend.application.note.query.NoteQueryProcessor;
 import com.helha.projetaemt_backend.application.note.query.getbyid.GetByIdNoteOutput;
+import com.helha.projetaemt_backend.application.note.query.getbyidfolder.GetByIdFolderNoteOutput;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,8 +29,20 @@ public class NoteQueryController {
                     content = @Content(schema = @Schema(implementation = org.springframework.http.ProblemDetail.class))
             )
     })
-    @GetMapping("{id}")
-    public ResponseEntity<GetByIdNoteOutput> findById(@PathVariable int id){
-        return ResponseEntity.ok(noteQueryProcessor.getByIdNoteHandler.handle(id));
+    @GetMapping("{idNote}")
+    public ResponseEntity<GetByIdNoteOutput> findById(@PathVariable int idNote){
+        return ResponseEntity.ok(noteQueryProcessor.getByIdNoteHandler.handle(idNote));
+    }
+
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "404",
+                    description = "When a note is not found.",
+                    content = @Content(schema = @Schema(implementation = org.springframework.http.ProblemDetail.class))
+            )
+    })
+    @GetMapping("{idFolder}")
+    public ResponseEntity<GetByIdFolderNoteOutput> findByIdFolder(@PathVariable int idFolder){
+        return ResponseEntity.ok(noteQueryProcessor.getByIdFolderNoteHandler.handle(idFolder));
     }
 }
