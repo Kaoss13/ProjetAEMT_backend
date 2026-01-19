@@ -7,5 +7,5 @@ import java.util.List;
 
 @Repository
 public interface INoteRepository extends CrudRepository<DbNote, Integer> {
-    List<DbNote> findByIdFolder(int id);
+    List<DbNote> findByFolderId(int id);
 }

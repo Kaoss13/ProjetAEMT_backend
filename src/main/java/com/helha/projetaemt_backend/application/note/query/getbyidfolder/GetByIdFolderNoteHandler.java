@@ -19,7 +19,7 @@ public class GetByIdFolderNoteHandler {
 
     public GetByIdFolderNoteOutput handle(int id){
         Iterable<DbNote> dbNotes;
-        dbNotes = noteRepository.findByIdFolder(id);
+        dbNotes = noteRepository.findByFolderId(id);
 
         GetByIdFolderNoteOutput output = new GetByIdFolderNoteOutput();
 

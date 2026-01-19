@@ -41,7 +41,7 @@ public class NoteQueryController {
                     content = @Content(schema = @Schema(implementation = org.springframework.http.ProblemDetail.class))
             )
     })
-    @GetMapping("{idFolder}")
+    @GetMapping("/folders/{idFolder}")
     public ResponseEntity<GetByIdFolderNoteOutput> findByIdFolder(@PathVariable int idFolder){
         return ResponseEntity.ok(noteQueryProcessor.getByIdFolderNoteHandler.handle(idFolder));
     }
