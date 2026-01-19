@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Note {
 
+    private int id;
     private int idUser;
     private int idFolder;
     private String title;

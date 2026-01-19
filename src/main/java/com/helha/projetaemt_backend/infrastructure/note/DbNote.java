@@ -1,5 +1,7 @@
 package com.helha.projetaemt_backend.infrastructure.note;
 
+import com.helha.projetaemt_backend.domain.folder.Folder;
+import com.helha.projetaemt_backend.domain.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
