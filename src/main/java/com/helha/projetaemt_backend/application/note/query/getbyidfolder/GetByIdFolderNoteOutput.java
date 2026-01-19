@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GetByIdFolderNoteOutput {
+
     public List<Note> notes = new ArrayList<>();
 
     public static class Note  {
