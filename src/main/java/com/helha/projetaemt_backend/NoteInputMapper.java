@@ -24,6 +24,7 @@ public class NoteInputMapper {
 
         // Mapper les champs simples
         DbNote entity = modelMapper.map(input, DbNote.class);
+        
 
         // Mapper les relations — c’est ici que ça DOIT être fait
         entity.user = user;

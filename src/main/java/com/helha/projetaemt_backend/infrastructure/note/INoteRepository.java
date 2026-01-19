@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface INoteRepository extends JpaRepository<DbNote, Integer> {
+public interface INoteRepository extends CrudRepository<DbNote, Integer> {
     List<DbNote> findByFolderId(int id);
 }

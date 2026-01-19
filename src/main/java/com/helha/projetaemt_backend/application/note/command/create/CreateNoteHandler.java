@@ -22,16 +22,17 @@ public class CreateNoteHandler {
     private final IUserRepository userRepository;
     private final IFolderRepository folderRepository;
     private final NoteMapper noteMapper;
-    private final ModelMapper modelMapper;
     private final NoteInputMapper noteInputMapper;
 
 
-    public CreateNoteHandler(INoteRepository noteRepository, IUserRepository userRepository, IFolderRepository folderRepository, NoteMapper noteMapper, ModelMapper modelMapper, NoteInputMapper noteInputMapper) {
+    public CreateNoteHandler(INoteRepository noteRepository, IUserRepository userRepository,
+                             IFolderRepository folderRepository, NoteMapper noteMapper,
+                             NoteInputMapper noteInputMapper) {
+
         this.noteRepository = noteRepository;
         this.userRepository = userRepository;
         this.folderRepository = folderRepository;
         this.noteMapper = noteMapper;
-        this.modelMapper = modelMapper;
         this.noteInputMapper = noteInputMapper;
     }
 
@@ -39,12 +40,11 @@ public class CreateNoteHandler {
     public CreateNoteOutput handle(CreateNoteInput input) {
 
         DbUser user = userRepository.findById(input.idUser)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         DbFolder folder = folderRepository.findById((long) input.idFolder)
-                .orElseThrow(() -> new RuntimeException("Folder not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Folder not found"));
 
-        // Toute la construction est maintenant déléguée au mapper
         DbNote entity = noteInputMapper.toEntity(input, user, folder);
 
         DbNote savedEntity = noteRepository.save(entity);

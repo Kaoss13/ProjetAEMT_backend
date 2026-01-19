@@ -5,6 +5,7 @@ import com.helha.projetaemt_backend.application.note.command.create.CreateNoteIn
 import com.helha.projetaemt_backend.application.note.command.create.CreateNoteOutput;
 import com.helha.projetaemt_backend.application.note.command.update.UpdateNoteHandler;
 import com.helha.projetaemt_backend.application.note.command.update.UpdateNoteInput;
+import com.helha.projetaemt_backend.application.note.exceptions.NoteNotFoundException;
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,15 +41,15 @@ public class NoteCommandController {
     })
     @PostMapping()
     public ResponseEntity<CreateNoteOutput> create(@Valid @RequestBody CreateNoteInput input) throws IllegalAccessException {
-        CreateNoteOutput output = noteCommandProcessor.createNoteHandler.handle(input);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(output.id)
-                .toUri();
-        return ResponseEntity
-                .created(location)
-                .body(output);
+            CreateNoteOutput output = noteCommandProcessor.createNoteHandler.handle(input);
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path("/{id}")
+                    .buildAndExpand(output.id)
+                    .toUri();
+            return ResponseEntity
+                    .created(location)
+                    .body(output);
     }
 
     @ApiResponses({
@@ -66,7 +67,7 @@ public class NoteCommandController {
             noteCommandProcessor.updateNoteHandler.handle(input);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException();
+            throw new NoteNotFoundException(input.id);
         }
     }
 
@@ -82,7 +83,7 @@ public class NoteCommandController {
             noteCommandProcessor.deleteNoteHandler.handle(id);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException();
+            throw new NoteNotFoundException(id);
         }
     }
 }
