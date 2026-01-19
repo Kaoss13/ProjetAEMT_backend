@@ -11,7 +11,7 @@ public class GetByIdNoteOutput {
     public String content;
     public LocalDateTime createdAt;
     public LocalDateTime updatedAt;
-    public int syzeBytes;
+    public int sizeBytes;
     public int lineCount;
     public int wordCount;
     public int charCount;

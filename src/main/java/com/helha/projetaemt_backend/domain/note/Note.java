@@ -16,7 +16,7 @@ public class Note {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private int syzeBytes;
+    private int sizeBytes;
     private int lineCount;
     private int wordCount;
     private int charCount;

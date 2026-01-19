@@ -30,10 +30,6 @@ public class NoteQueryController {
     })
     @GetMapping("{id}")
     public ResponseEntity<GetByIdNoteOutput> findById(@PathVariable int id){
-        try {
-            return ResponseEntity.ok(noteQueryProcessor.getByIdNoteHandler.handle(id));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException();
-        }
+        return ResponseEntity.ok(noteQueryProcessor.getByIdNoteHandler.handle(id));
     }
 }

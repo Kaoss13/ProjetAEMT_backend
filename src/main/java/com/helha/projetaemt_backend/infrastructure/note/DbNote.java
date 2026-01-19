@@ -1,10 +1,9 @@
 package com.helha.projetaemt_backend.infrastructure.note;
 
-import com.helha.projetaemt_backend.domain.folder.Folder;
-import com.helha.projetaemt_backend.domain.user.User;
 import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
 import com.helha.projetaemt_backend.infrastructure.user.DbUser;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
@@ -25,10 +24,16 @@ public class DbNote {
 
     public String title;
     public String content;
+    @Column(name = "created_at")
     public LocalDateTime createdAt;
+    @Column(name = "updated_at")
     public LocalDateTime updatedAt;
-    public int syzeBytes;
+    @Column(name = "size_bytes")
+    public int sizeBytes;
+    @Column(name = "line_count")
     public int lineCount;
+    @Column(name = "word_count")
     public int wordCount;
+    @Column(name = "char_count")
     public int charCount;
 }
