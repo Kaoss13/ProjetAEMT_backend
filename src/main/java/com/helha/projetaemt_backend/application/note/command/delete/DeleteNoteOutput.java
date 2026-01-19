@@ -1,8 +1,8 @@
-package com.helha.projetaemt_backend.application.note.query.getbyid;
+package com.helha.projetaemt_backend.application.note.command.delete;
 
 import java.time.LocalDateTime;
 
-public class GetByIdNoteOutput  {
+public class DeleteNoteOutput {
     public int id;
     public int idUser;
     public int idFolder;
