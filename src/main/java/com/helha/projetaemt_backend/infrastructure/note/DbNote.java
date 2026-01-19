@@ -2,6 +2,8 @@ package com.helha.projetaemt_backend.infrastructure.note;
 
 import com.helha.projetaemt_backend.domain.folder.Folder;
 import com.helha.projetaemt_backend.domain.user.User;
+import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
+import com.helha.projetaemt_backend.infrastructure.user.DbUser;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -15,11 +17,11 @@ public class DbNote {
 
     @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)
-    public User user;
+    public DbUser user;
 
     @ManyToOne
     @JoinColumn(name = "id_folder")
-    public Folder folder;
+    public DbFolder folder;
 
     public String title;
     public String content;
