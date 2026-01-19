@@ -3,6 +3,7 @@ package com.helha.projetaemt_backend.application.note.query.getbyid;
 import java.time.LocalDateTime;
 
 public class GetByIdNoteOutput  {
+
     public int id;
     public int idUser;
     public int idFolder;
