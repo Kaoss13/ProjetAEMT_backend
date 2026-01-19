@@ -19,7 +19,6 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/users")
-@CrossOrigin(origins = "*")
 public class UserCommandController {
 
     private final UserCommandProcessor userCommandProcessor;
