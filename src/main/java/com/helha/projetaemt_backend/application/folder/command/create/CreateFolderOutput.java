@@ -6,6 +6,6 @@ public class CreateFolderOutput {
     public int id;
     public int userId;
     public String title;
-    public int parentFolderId;
+    public Integer parentFolderId;
     public LocalDateTime createdAt;
 }
