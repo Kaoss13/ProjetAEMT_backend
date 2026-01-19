@@ -1,9 +1,11 @@
 package com.helha.projetaemt_backend.infrastructure.user;
 
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Repository
 public interface IUserRepository extends CrudRepository<DbUser, Long> {
 
     Optional<DbUser> findByUserName(String userName);
