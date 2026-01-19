@@ -19,8 +19,11 @@ public class UserCommandProcessor {
         this.loginUserHandler = loginUserHandler;
     }
 
+    public CreateUserOutput create(CreateUserInput input) {
+        return createUserHandler.handle(input);
+    }
 
-
-
-
+    public LoginUserOutput login(LoginUserInput input) {
+        return loginUserHandler.handle(input);
+    }
 }
