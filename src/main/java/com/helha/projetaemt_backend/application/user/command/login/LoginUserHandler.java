@@ -1,5 +1,6 @@
 package com.helha.projetaemt_backend.application.user.command.login;
 
+import com.helha.projetaemt_backend.application.user.exceptions.InvalidCredentialsException;
 import com.helha.projetaemt_backend.application.utils.ICommandHandler;
 import com.helha.projetaemt_backend.infrastructure.user.DbUser;
 import com.helha.projetaemt_backend.infrastructure.user.IUserRepository;
@@ -20,10 +21,10 @@ public class LoginUserHandler implements ICommandHandler<LoginUserInput, LoginUs
     @Override
     public LoginUserOutput handle(LoginUserInput input) {
         DbUser dbUser = userRepository.findByUserName(input.userName)
-                .orElseThrow(() -> new IllegalArgumentException("Nom d'utilisateur ou mot de passe incorrect"));
+                .orElseThrow(InvalidCredentialsException::new);
 
         if (!passwordEncoder.matches(input.password, dbUser.hashPassword)) {
-            throw new IllegalArgumentException("Nom d'utilisateur ou mot de passe incorrect");
+            throw new InvalidCredentialsException();
         }
 
         LoginUserOutput output = new LoginUserOutput();
