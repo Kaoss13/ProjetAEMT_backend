@@ -42,7 +42,7 @@ public class CreateNoteHandler {
         DbUser user = userRepository.findById(input.idUser)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        DbFolder folder = folderRepository.findById((long) input.idFolder)
+        DbFolder folder = folderRepository.findById(input.idFolder)
                 .orElseThrow(() -> new IllegalArgumentException("Folder not found"));
 
         DbNote entity = noteInputMapper.toEntity(input, user, folder);
