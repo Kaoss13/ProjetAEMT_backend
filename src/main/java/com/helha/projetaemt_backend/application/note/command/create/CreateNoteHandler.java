@@ -35,7 +35,7 @@ public class CreateNoteHandler {
         DbUser user = userRepository.findById(input.idUser)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        DbFolder folder = folderRepository.findById(input.idFolder)
+        DbFolder folder = folderRepository.findById((long) input.idFolder)
                 .orElseThrow(() -> new RuntimeException("Folder not found"));
 
 
