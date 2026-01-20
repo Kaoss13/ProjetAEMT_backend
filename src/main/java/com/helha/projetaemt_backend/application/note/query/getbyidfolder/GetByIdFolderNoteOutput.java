@@ -1,15 +1,14 @@
 package com.helha.projetaemt_backend.application.note.query.getbyidfolder;
 
-import com.helha.projetaemt_backend.domain.note.Note;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GetByIdFolderNoteOutput {
+
     public List<Note> notes = new ArrayList<>();
 
-    public static class Note {
+    public static class Note  {
         public int id;
         public int idUser;
         public int idFolder;

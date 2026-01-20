@@ -1,0 +1,89 @@
+
+package com.helha.projetaemt_backend;
+
+import com.helha.projetaemt_backend.infrastructure.note.DbNote;
+import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Configuration;
+
+import java.lang.reflect.Field;
+
+@Configuration
+public class NoteMapper {
+
+    private final ModelMapper modelMapper;
+
+    public NoteMapper(ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
+    }
+
+    public <T> T map(DbNote entity, Class<T> outputClass) {
+        if (entity == null) return null;
+
+        // 1) Mapping standard
+        T dto = modelMapper.map(entity, outputClass);
+
+        // 2) idUser (association -> fallback champs primitifs)
+        Integer idUser = null;
+        try {
+            // association
+            if (entity.user != null) {
+                idUser = entity.user.id;
+            }
+        } catch (Exception ignored) {}
+        if (idUser == null || idUser == 0) {
+            // fallback : tenter de lire un champ primitif sur l'entité (idUser ou userId)
+            Integer fromField = readIntFieldIfExists(entity, "idUser");
+            if (fromField == null) fromField = readIntFieldIfExists(entity, "userId");
+            if (fromField != null && fromField != 0) {
+                idUser = fromField;
+            }
+        }
+        if (idUser != null) {
+            setIfExists(dto, "idUser", idUser);
+        }
+
+        // 3) idFolder (association -> fallback champs primitifs)
+        Integer idFolder = null;
+        try {
+            if (entity.folder != null) {
+                idFolder = entity.folder.id;
+            }
+        } catch (Exception ignored) {}
+        if (idFolder == null || idFolder == 0) {
+            Integer fromField = readIntFieldIfExists(entity, "idFolder");
+            if (fromField == null) fromField = readIntFieldIfExists(entity, "folderId");
+            if (fromField != null && fromField != 0) {
+                idFolder = fromField;
+            }
+        }
+        if (idFolder != null) {
+            setIfExists(dto, "idFolder", idFolder);
+        }
+
+        return dto;
+    }
+
+    private <T> void setIfExists(T dto, String fieldName, Object value) {
+        try {
+            Field field = dto.getClass().getField(fieldName); // champ public
+            field.set(dto, value);
+        } catch (NoSuchFieldException ignored) {
+            // DTO sans ce champ -> ignorer
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Integer readIntFieldIfExists(Object source, String fieldName) {
+        try {
+            Field f = source.getClass().getDeclaredField(fieldName);
+            f.setAccessible(true);
+            Object v = f.get(source);
+            if (v instanceof Number) {
+                return ((Number) v).intValue();
+            }
+        } catch (NoSuchFieldException | IllegalAccessException ignored) {}
+        return null;
+    }
+}
+

@@ -1,5 +1,6 @@
 package com.helha.projetaemt_backend.controllers.note;
 
+import com.helha.projetaemt_backend.application.note.exceptions.NoteNotFoundException;
 import com.helha.projetaemt_backend.application.note.query.NoteQueryProcessor;
 import com.helha.projetaemt_backend.application.note.query.getbyid.GetByIdNoteOutput;
 import com.helha.projetaemt_backend.application.note.query.getbyidfolder.GetByIdFolderNoteOutput;
@@ -31,7 +32,12 @@ public class NoteQueryController {
     })
     @GetMapping("{idNote}")
     public ResponseEntity<GetByIdNoteOutput> findById(@PathVariable int idNote){
-        return ResponseEntity.ok(noteQueryProcessor.getByIdNoteHandler.handle(idNote));
+        try {
+            return ResponseEntity.ok(noteQueryProcessor.getByIdNoteHandler.handle(idNote));
+        }catch (IllegalArgumentException e){
+            throw new NoteNotFoundException(idNote);
+        }
+
     }
 
     @ApiResponses({

@@ -1,5 +1,6 @@
 package com.helha.projetaemt_backend.application.user.command.create;
 
+import com.helha.projetaemt_backend.application.user.exceptions.UserAlreadyExistsException;
 import com.helha.projetaemt_backend.application.utils.ICommandHandler;
 import com.helha.projetaemt_backend.infrastructure.user.DbUser;
 import com.helha.projetaemt_backend.infrastructure.user.IUserRepository;
@@ -23,7 +24,7 @@ public class CreateUserHandler implements ICommandHandler<CreateUserInput, Creat
     @Override
     public CreateUserOutput handle(CreateUserInput input) {
         if (userRepository.existsByUserName(input.userName)) {
-            throw new IllegalArgumentException("Un utilisateur avec ce nom existe déjà");
+            throw new UserAlreadyExistsException(input.userName);
         }
 
         DbUser dbUser = new DbUser();

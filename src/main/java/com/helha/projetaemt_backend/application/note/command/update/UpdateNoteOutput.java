@@ -1,9 +1,8 @@
-package com.helha.projetaemt_backend.application.note.query.getbyid;
+package com.helha.projetaemt_backend.application.note.command.update;
 
 import java.time.LocalDateTime;
 
-public class GetByIdNoteOutput  {
-
+public class UpdateNoteOutput {
     public int id;
     public int idUser;
     public int idFolder;
