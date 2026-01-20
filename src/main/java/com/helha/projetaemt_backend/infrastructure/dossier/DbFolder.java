@@ -19,7 +19,7 @@ public class DbFolder {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_user", nullable = false)
-    private DbUser user;
+    public DbUser user;
 
     // Relation récursive : dossier parent
     @ManyToOne(fetch = FetchType.LAZY)
