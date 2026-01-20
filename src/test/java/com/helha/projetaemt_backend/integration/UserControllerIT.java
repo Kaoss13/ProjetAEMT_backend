@@ -138,7 +138,8 @@ class UserControllerIT {
                     )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").isNumber())
-                    .andExpect(jsonPath("$.userName").value("testuser"));
+                    .andExpect(jsonPath("$.userName").value("testuser"))
+                    .andExpect(jsonPath("$.token").isNotEmpty());
         }
 
         @Test
