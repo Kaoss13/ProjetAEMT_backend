@@ -11,4 +11,5 @@ import java.util.List;
 public interface INoteRepository extends CrudRepository<DbNote, Integer> {
     @EntityGraph(attributePaths = {"user", "folder"})
     List<DbNote> findByFolderId(int id);
+    List<DbNote> findAllByUser_Id(int userId);
 }
