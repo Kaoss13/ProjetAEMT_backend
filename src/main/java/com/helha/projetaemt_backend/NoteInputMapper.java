@@ -22,20 +22,16 @@ public class NoteInputMapper {
 
     public DbNote toEntity(CreateNoteInput input, DbUser user, DbFolder folder) {
 
-        // Mapper les champs simples
         DbNote entity = modelMapper.map(input, DbNote.class);
         
 
-        // Mapper les relations — c’est ici que ça DOIT être fait
         entity.user = user;
         entity.folder = folder;
 
-        // Timestamps
         LocalDateTime now = LocalDateTime.now();
         entity.createdAt = now;
         entity.updatedAt = now;
 
-        // Métriques
         String content = input.content != null ? input.content : "";
         entity.charCount = (content.length());
         entity.sizeBytes = (content.getBytes(StandardCharsets.UTF_8).length);
