@@ -4,6 +4,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IFolderRepository extends CrudRepository<DbFolder, Integer> {
@@ -14,4 +15,7 @@ public interface IFolderRepository extends CrudRepository<DbFolder, Integer> {
     boolean existsByIdAndUser_Id(int folderId, int userId);
     List<DbFolder> findAllByUser_Id(int userId);
     List<DbFolder> findByParentFolder_Id(int id);
+    Optional<DbFolder> findByUser_IdAndParentFolderIsNull(int idUser);
+
+    //Optional<DbFolder> findByUser_IdAndParentFolderEqualsIsNullAndIdEquals0(int idUser);
 }

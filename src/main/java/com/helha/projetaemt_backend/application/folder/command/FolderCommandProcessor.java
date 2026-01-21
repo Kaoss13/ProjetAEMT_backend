@@ -7,14 +7,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FolderCommandProcessor {
-    public final CreateFolderHandler createFolerHandler;
+    public final CreateFolderHandler createFolderHandler;
     public final UpdateFolderHandler updateFolderHandler;
     public final DeleteFolderHandler deleteFolderHandler;
 
-    public FolderCommandProcessor(CreateFolderHandler createFolerHandler,
+    public FolderCommandProcessor(CreateFolderHandler createFolderHandler,
                                   UpdateFolderHandler updateFolderHandler,
                                   DeleteFolderHandler deleteFolderHandler){
-        this.createFolerHandler = createFolerHandler;
+        this.createFolderHandler = createFolderHandler;
         this.updateFolderHandler = updateFolderHandler;
         this.deleteFolderHandler = deleteFolderHandler;
     }

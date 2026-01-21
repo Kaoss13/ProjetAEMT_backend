@@ -3,10 +3,8 @@ package com.helha.projetaemt_backend.application.note.query.getbyid;
 import com.helha.projetaemt_backend.NoteMapper;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 public class GetByIdNoteHandler {

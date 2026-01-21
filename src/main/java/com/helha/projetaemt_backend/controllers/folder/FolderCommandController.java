@@ -81,14 +81,14 @@ public class FolderCommandController {
     public ResponseEntity<CreateFolderOutput> create(@Valid @RequestBody CreateFolderInput input){
         try{
             CreateFolderOutput output = folderCommandProcessor
-                    .createFolerHandler
+                    .createFolderHandler
                     .handle(input);
 
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()
                     .path("/{id}")
                     .buildAndExpand(output.id)
-                    .toUri();// obtient un objet URI
+                    .toUri();
             return ResponseEntity
                     .created(location)
                     .body(output);

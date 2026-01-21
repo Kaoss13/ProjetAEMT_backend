@@ -32,12 +32,19 @@ public class CreateNoteHandler {
         DbUser user = userRepository.findById(input.idUser)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        DbFolder folder = folderRepository.findById(input.idFolder)
-                .orElseThrow(() -> new RuntimeException("Folder not found"));
+        DbFolder folder;
+        if (input.idFolder != null) {
+            folder = folderRepository.findById(input.idFolder)
+                    .orElseThrow(() -> new RuntimeException("Folder not found"));
+        } else {
+            folder = folderRepository.findByUser_IdAndParentFolderIsNull(input.idUser)
+                    .orElseThrow(() -> new RuntimeException("Root folder not found"));
+        }
+
 
         Note noteDomain = Note.builder()
                 .idUser(input.idUser)
-                .idFolder(input.idFolder)
+                .idFolder(input.idFolder == 0 ? folder.id : input.idFolder)
                 .title(input.title)
                 .content(input.content)
                 .createdAt(LocalDateTime.now())

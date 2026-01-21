@@ -26,41 +26,49 @@ public class CreateFolderHandler implements ICommandHandler<CreateFolderInput, C
         this.createFolderOutputMapper = createFolderOutputMapper;
     }
 
+
     @Override
-    public CreateFolderOutput handle(CreateFolderInput input){
-        //Validation du titre
-        if(input.title == null || input.title.trim().isEmpty()){
+    public CreateFolderOutput handle(CreateFolderInput input) {
+
+        if (input.title == null || input.title.trim().isEmpty()) {
             throw new IllegalArgumentException("The folder title is mandatory.");
         }
 
-        //Vérifier si l'id de l'utilisateur existe
         DbUser user = userRepository.findById(input.userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        //Valeur null par défaut, parentFolder == null -> dossier racine et parentFolder != null -> sous-dossier
-        DbFolder parentFolder = null;
-        //Si parentFolder != null -> sous-dossier ==> on doit aller chercher le dossier parent en DB
-        if (input.parentFolderId != null) {
+        DbFolder parentFolder;
+
+        if (input.parentFolderId == null || input.parentFolderId == 0) {
+            parentFolder = folderRepository.findByUser_IdAndParentFolderIsNull(input.userId)
+                    .orElseThrow(() -> new IllegalArgumentException("Root folder not found for this user."));
+        }
+        else {
             parentFolder = folderRepository.findById(input.parentFolderId)
                     .orElseThrow(() -> new IllegalArgumentException("Parent folder not found"));
 
-            /*parentFolder.getUser().id != input.userId =
-            l’utilisateur propriétaire du dossier parent n’est pas le même que l’utilisateur qui crée le sous-dossier*/
-            if (parentFolder.user == null || parentFolder.user.id != input.userId) {
+            if (parentFolder.user.id != input.userId) {
                 throw new IllegalArgumentException("Parent folder does not belong to this user.");
             }
         }
-        //Gestion des doublons ==> gestions du UNIQUE
-        String normalizedTitle = input.title.trim().toLowerCase();
-        boolean alreadyExists = (input.parentFolderId == null)
-                ? folderRepository.existsByUser_IdAndParentFolderIsNullAndTitleIgnoreCase(input.userId, normalizedTitle)
-                : folderRepository.existsByUser_IdAndParentFolder_IdAndTitleIgnoreCase(input.userId, input.parentFolderId, normalizedTitle);
 
-        if(alreadyExists) throw new IllegalArgumentException("Folder already exists");
+        String normalizedTitle = input.title.trim();
 
+        boolean alreadyExists =
+                folderRepository.existsByUser_IdAndParentFolder_IdAndTitleIgnoreCase(
+                        input.userId,
+                        parentFolder.getId(),
+                        normalizedTitle
+                );
 
-        DbFolder entity = createFolderInputMapper.toEntity(input, user, parentFolder );
+        if (alreadyExists) {
+            throw new IllegalArgumentException("Folder already exists");
+        }
+
+        DbFolder entity = createFolderInputMapper.toEntity(input, user, parentFolder);
         DbFolder saved = folderRepository.save(entity);
+
         return createFolderOutputMapper.toCreateOutput(saved);
     }
+
 }
