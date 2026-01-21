@@ -1,6 +1,7 @@
 package com.helha.projetaemt_backend.controllers.folder;
 
 import com.helha.projetaemt_backend.application.folder.query.FolderQueryProcessor;
+import com.helha.projetaemt_backend.application.folder.query.getAll.GetAllFoldersWithNotesOutput;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,8 @@ public class FolderQueryController {
     }
 
 
+
+
     @GetMapping("/{id}/export-zip")
     public ResponseEntity<byte[]> exportFolderToZip(@PathVariable int id) throws Exception {
 
@@ -28,6 +31,11 @@ public class FolderQueryController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=folder_" + id + ".zip")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(zipBytes);
+    }
+
+    @GetMapping("/all/{userId}")
+    public ResponseEntity<GetAllFoldersWithNotesOutput> getAllFoldersWithNotes(@PathVariable int userId) {
+        return ResponseEntity.ok(folderQueryProcessor.getAllFoldersWithNotesHandler.handle(userId));
     }
 
 
