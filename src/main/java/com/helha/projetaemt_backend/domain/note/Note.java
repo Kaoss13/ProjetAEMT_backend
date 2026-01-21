@@ -1,5 +1,7 @@
 package com.helha.projetaemt_backend.domain.note;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -7,7 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Note {
 
     private int id;
@@ -18,6 +22,15 @@ public class Note {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+
+
+    public Note (int id, int idUser, int idFolder, String title, String content){
+        this.id = id;
+        this.idUser = idUser;
+        this.idFolder = idFolder;
+        this.title = title;
+        this.content = content;
+    }
 
     public int getSizeBytes(){
         return this.content.getBytes(StandardCharsets.UTF_8).length;

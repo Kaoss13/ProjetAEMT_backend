@@ -2,7 +2,9 @@
 package com.helha.projetaemt_backend;
 
 import com.helha.projetaemt_backend.domain.note.Note;
+import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
+import com.helha.projetaemt_backend.infrastructure.user.DbUser;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,6 +12,7 @@ import java.lang.reflect.Field;
 
 @Configuration
 public class NoteMapper {
+    private final DbNote entity = new DbNote();
 
     private final ModelMapper modelMapper;
 
@@ -98,5 +101,17 @@ public class NoteMapper {
         } catch (NoSuchFieldException | IllegalAccessException ignored) {}
         return null;
     }
+
+
+    public DbNote toEntity(Note noteDomain, DbUser user, DbFolder folder) {
+        entity.user = user;
+        entity.folder = folder;
+        entity.title = noteDomain.getTitle();
+        entity.content = noteDomain.getContent();
+        entity.createdAt = noteDomain.getCreatedAt();
+        entity.updatedAt = noteDomain.getUpdatedAt();
+        return entity;
+    }
+
 }
 
