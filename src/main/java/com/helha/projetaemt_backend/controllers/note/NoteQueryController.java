@@ -54,12 +54,19 @@ public class NoteQueryController {
         return ResponseEntity.ok(noteQueryProcessor.getByIdFolderNoteHandler.handle(idFolder));
     }
 
+
+
     @GetMapping("/{id}/export-pdf")
-    public ResponseEntity<byte[]> exportToPdf(@PathVariable int id) throws Exception{
-        byte[] pdfBytes = noteQueryProcessor.pdfExportHandler.handle(id);
+    public ResponseEntity<byte[]> exportToPdf(@PathVariable int id) throws Exception {
+        String appBaseUrl = "https://monapp";
+
+        byte[] pdfBytes = noteQueryProcessor.pdfExportHandler.handle(id, appBaseUrl);
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=note_" + id + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdfBytes);
     }
+
+
 }
