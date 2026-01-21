@@ -17,7 +17,6 @@ public class Note {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private int charCount;
 
 
     public int getSizeBytes(){
