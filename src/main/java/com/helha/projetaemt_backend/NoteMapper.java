@@ -1,6 +1,7 @@
 
 package com.helha.projetaemt_backend;
 
+import com.helha.projetaemt_backend.domain.note.Note;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Configuration;
@@ -25,13 +26,11 @@ public class NoteMapper {
         // 2) idUser (association -> fallback champs primitifs)
         Integer idUser = null;
         try {
-            // association
             if (entity.user != null) {
                 idUser = entity.user.id;
             }
         } catch (Exception ignored) {}
         if (idUser == null || idUser == 0) {
-            // fallback : tenter de lire un champ primitif sur l'entité (idUser ou userId)
             Integer fromField = readIntFieldIfExists(entity, "idUser");
             if (fromField == null) fromField = readIntFieldIfExists(entity, "userId");
             if (fromField != null && fromField != 0) {
@@ -58,6 +57,20 @@ public class NoteMapper {
         }
         if (idFolder != null) {
             setIfExists(dto, "idFolder", idFolder);
+        }
+
+        // 4) Calcul des métadonnées à la volée via le domaine
+        try {
+            String content = entity.content != null ? entity.content : "";
+            Note noteDomain = new Note();
+            noteDomain.setContent(content);
+
+            setIfExists(dto, "sizeBytes", noteDomain.getSizeBytes());
+            setIfExists(dto, "lineCount", noteDomain.getLineCount());
+            setIfExists(dto, "wordCount", noteDomain.getWordCount());
+            setIfExists(dto, "charCount", noteDomain.getCharCount());
+        } catch (Exception ignored) {
+            // Si le DTO n'a pas ces champs, on ignore
         }
 
         return dto;

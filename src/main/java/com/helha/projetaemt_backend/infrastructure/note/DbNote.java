@@ -28,12 +28,4 @@ public class DbNote {
     public LocalDateTime createdAt;
     @Column(name = "updated_at")
     public LocalDateTime updatedAt;
-    @Column(name = "size_bytes")
-    public int sizeBytes;
-    @Column(name = "line_count")
-    public int lineCount;
-    @Column(name = "word_count")
-    public int wordCount;
-    @Column(name = "char_count")
-    public int charCount;
 }

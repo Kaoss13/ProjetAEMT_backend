@@ -1,5 +1,6 @@
 package com.helha.projetaemt_backend.application.note.command.create;
 
+import com.helha.projetaemt_backend.domain.note.Note;
 import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
 import com.helha.projetaemt_backend.infrastructure.dossier.IFolderRepository;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
@@ -13,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+
 @Service
 public class CreateNoteHandler {
 
@@ -21,14 +23,13 @@ public class CreateNoteHandler {
     private final IFolderRepository folderRepository;
     private final ModelMapper modelMapper;
 
-
-    public CreateNoteHandler(INoteRepository noteRepository, IUserRepository userRepository, IFolderRepository folderRepository, ModelMapper modelMapper) {
+    public CreateNoteHandler(INoteRepository noteRepository, IUserRepository userRepository,
+                             IFolderRepository folderRepository, ModelMapper modelMapper) {
         this.noteRepository = noteRepository;
         this.userRepository = userRepository;
         this.folderRepository = folderRepository;
         this.modelMapper = modelMapper;
     }
-
 
     public CreateNoteOutput handle(CreateNoteInput input) {
 
@@ -38,34 +39,33 @@ public class CreateNoteHandler {
         DbFolder folder = folderRepository.findById(input.idFolder)
                 .orElseThrow(() -> new RuntimeException("Folder not found"));
 
+        Note noteDomain = new Note();
+        noteDomain.setIdUser(input.idUser);
+        noteDomain.setIdFolder(input.idFolder);
+        noteDomain.setTitle(input.title);
+        noteDomain.setContent(input.content);
+        noteDomain.setCreatedAt(LocalDateTime.now());
+        noteDomain.setUpdatedAt(LocalDateTime.now());
 
-        DbNote note = new DbNote();
-        note.user = user;
-        note.folder = folder;
+        DbNote dbNote = new DbNote();
+        dbNote.user = user;
+        dbNote.folder = folder;
+        dbNote.title = noteDomain.getTitle();
+        dbNote.content = noteDomain.getContent();
+        dbNote.createdAt = noteDomain.getCreatedAt();
+        dbNote.updatedAt = noteDomain.getUpdatedAt();
 
-        note.title = input.title;
-        note.content = input.content;
+        DbNote saved = noteRepository.save(dbNote);
 
-        // === CALCUL AUTOMATIQUE ===
-        note.createdAt = LocalDateTime.now();
-        note.updatedAt = LocalDateTime.now();
-
-        note.sizeBytes = input.content.getBytes(StandardCharsets.UTF_8).length;
-        note.lineCount = input.content.split("\r\n|\r|\n").length;
-        note.wordCount = input.content.trim().isEmpty()
-                ? 0
-                : input.content.trim().split("\\s+").length;
-        note.charCount = input.content.length();
-
-        // Persist
-        DbNote saved = noteRepository.save(note);
-
-        // === MAPPING VERS OUTPUT ===
         CreateNoteOutput output = modelMapper.map(saved, CreateNoteOutput.class);
         output.idUser = saved.user.id;
         output.idFolder = Math.toIntExact(saved.folder.id);
 
+        output.sizeBytes = noteDomain.getSizeBytes();
+        output.lineCount = noteDomain.getLineCount();
+        output.wordCount = noteDomain.getWordCount();
+        output.charCount = noteDomain.getCharCount();
         return output;
     }
+}
 
-    }

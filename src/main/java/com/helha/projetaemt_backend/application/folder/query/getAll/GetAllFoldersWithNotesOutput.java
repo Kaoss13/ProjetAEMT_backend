@@ -21,6 +21,7 @@ public class GetAllFoldersWithNotesOutput {
         public String content;
         public LocalDateTime createdAt;
         public LocalDateTime updatedAt;
+        public int sizeBytes;
         public int lineCount;
         public int wordCount;
         public int charCount;

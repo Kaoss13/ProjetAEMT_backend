@@ -3,6 +3,7 @@ package com.helha.projetaemt_backend.domain.note;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,9 +17,21 @@ public class Note {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private int sizeBytes;
-    private int lineCount;
-    private int wordCount;
     private int charCount;
 
+
+    public int getSizeBytes(){
+        return this.content.getBytes(StandardCharsets.UTF_8).length;
+    }
+    public int getLineCount(){
+        return this.content.split("\r\n|\r|\n").length;
+    }
+    public int getWordCount(){
+        return this.content.trim().isEmpty()
+                ? 0
+                : this.content.trim().split("\\s+").length;
+    }
+    public int getCharCount(){
+        return this.content.length();
+    }
 }

@@ -1,5 +1,6 @@
 package com.helha.projetaemt_backend.application.folder.query.getAll;
 
+import com.helha.projetaemt_backend.domain.note.Note;
 import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
 import com.helha.projetaemt_backend.infrastructure.dossier.IFolderRepository;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
@@ -25,7 +26,7 @@ public class GetAllFoldersWithNotesHandler {
 
     public GetAllFoldersWithNotesOutput handle(int userId) {
 
-        //Vérifier que le user existe
+        // Vérifier que le user existe
         if (!userRepository.existsById(userId)) {
             throw new IllegalArgumentException("The user with this ID does not exist");
         }
@@ -34,6 +35,8 @@ public class GetAllFoldersWithNotesHandler {
         List<DbNote> notes = noteRepository.findAllByUser_Id(userId);
 
         GetAllFoldersWithNotesOutput output = new GetAllFoldersWithNotesOutput();
+
+        // Mapper les dossiers
         for (DbFolder f : folders) {
             GetAllFoldersWithNotesOutput.FolderDto dto = new GetAllFoldersWithNotesOutput.FolderDto();
             dto.id = f.id;
@@ -42,6 +45,8 @@ public class GetAllFoldersWithNotesHandler {
             dto.title = f.title;
             output.folders.add(dto);
         }
+
+        // Mapper les notes avec métadonnées calculées
         for (DbNote n : notes) {
             if (n.folder == null) continue;
 
@@ -53,9 +58,17 @@ public class GetAllFoldersWithNotesHandler {
             dto.content = n.content;
             dto.createdAt = n.createdAt;
             dto.updatedAt = n.updatedAt;
-            dto.lineCount = n.lineCount;
-            dto.wordCount = n.wordCount;
-            dto.charCount = n.charCount;
+
+            // Calcul des métadonnées via le domaine
+            String content = n.content != null ? n.content : "";
+            Note noteDomain = new Note();
+            noteDomain.setContent(content);
+
+            dto.sizeBytes = noteDomain.getSizeBytes();
+            dto.lineCount = noteDomain.getLineCount();
+            dto.wordCount = noteDomain.getWordCount();
+            dto.charCount = noteDomain.getCharCount();
+
             output.notes.add(dto);
         }
 

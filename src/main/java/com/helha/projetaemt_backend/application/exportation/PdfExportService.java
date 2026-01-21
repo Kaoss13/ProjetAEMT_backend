@@ -14,29 +14,34 @@ import java.io.IOException;
 
 @Service
 public class PdfExportService {
-    public byte [] exportNoteToPdf (DbNote note) throws IOException {
+
+    public byte[] exportNoteToPdf(DbNote note) throws IOException {
         Document doc = new Document();
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         PdfWriter.getInstance(doc, output);
         doc.open();
 
+        // Titre
         Font titleFont = new Font(Font.HELVETICA, 18, Font.BOLD);
         doc.add(new Paragraph(note.title, titleFont));
 
+        // Création d'un objet métier pour calculer les métadonnées
+        String content = note.content != null ? note.content : "";
+        Note noteDomain = new Note();
+        noteDomain.setContent(content);
 
+        // Ajout des métadonnées calculées à la volée
         doc.add(new Paragraph("Créé le : " + note.createdAt));
         doc.add(new Paragraph("Dernière mise à jour : " + note.updatedAt));
-        doc.add(new Paragraph("Taille : " + note.sizeBytes + " bytes"));
-        doc.add(new Paragraph("Nombre de lignes : " + note.lineCount));
-        doc.add(new Paragraph("Nombre de mots : " + note.wordCount));
-        doc.add(new Paragraph("Nombre de caractères : " + note.charCount));
+        doc.add(new Paragraph("Taille : " + noteDomain.getSizeBytes() + " bytes"));
+        doc.add(new Paragraph("Nombre de lignes : " + noteDomain.getLineCount()));
+        doc.add(new Paragraph("Nombre de mots : " + noteDomain.getWordCount()));
+        doc.add(new Paragraph("Nombre de caractères : " + noteDomain.getCharCount()));
         doc.add(new Paragraph(" "));
         doc.add(new Paragraph("Contenu :"));
 
-
-        String content = note.content;
+        // Gestion des liens dans le contenu
         Paragraph paragraph = new Paragraph();
-
         Font linkFont = new Font(Font.HELVETICA, 12, Font.UNDERLINE, Color.BLUE);
 
         String[] words = content.split(" ");

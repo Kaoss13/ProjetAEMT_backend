@@ -22,9 +22,8 @@ public class NoteInputMapper {
 
     public DbNote toEntity(CreateNoteInput input, DbUser user, DbFolder folder) {
 
+        // Mapper les champs simples
         DbNote entity = modelMapper.map(input, DbNote.class);
-        
-
         entity.user = user;
         entity.folder = folder;
 
@@ -32,11 +31,6 @@ public class NoteInputMapper {
         entity.createdAt = now;
         entity.updatedAt = now;
 
-        String content = input.content != null ? input.content : "";
-        entity.charCount = (content.length());
-        entity.sizeBytes = (content.getBytes(StandardCharsets.UTF_8).length);
-        entity.lineCount = (content.isEmpty() ? 0 : content.split("\r\n|\r|\n").length);
-        entity.wordCount = (content.trim().isEmpty() ? 0 : content.trim().split("\\s+").length);
 
         return entity;
     }
