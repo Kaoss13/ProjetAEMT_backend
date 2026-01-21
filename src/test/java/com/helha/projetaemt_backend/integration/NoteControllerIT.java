@@ -92,37 +92,45 @@ class NoteControllerIT {
                     .andExpect(jsonPath("$.notes", hasSize(0)));
         }
 
+
         @Test
         @DisplayName("200 - retourne une liste avec deux notes")
-        void getTodos_shouldReturnListOfTodos() throws Exception {
-            CreateNoteInput input = CreateNoteInput.builder().idUser(1).idFolder(1).title("TestTitle").content("TestContent").build();
+        void getNotesByFolder_shouldReturnTwoNotes() throws Exception {
+            CreateNoteInput input1 = CreateNoteInput.builder()
+                    .idUser(1)
+                    .idFolder(1)
+                    .title("TestTitle")
+                    .content("TestContent")
+                    .build();
 
-            String payload = objectMapper.writeValueAsString(input);
+            mockMvc.perform(post("/notes")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(input1)))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.id").isNumber())
+                    .andExpect(jsonPath("$.title").value("TestTitle"));
 
-            mockMvc.perform(
-                            post("/notes")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(payload)
-                    )
-                    .andExpect(status().isCreated());
+            CreateNoteInput input2 = CreateNoteInput.builder()
+                    .idUser(1)
+                    .idFolder(1)
+                    .title("TestTitle2")
+                    .content("TestContent2")
+                    .build();
 
-            CreateNoteInput input2 = CreateNoteInput.builder().idUser(1).idFolder(1).title("TestTitle2").content("TestContent2").build();
-
-            String payload2 = objectMapper.writeValueAsString(input2);
-
-            mockMvc.perform(
-                            post("/notes")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(payload2)
-                    )
-                    .andExpect(status().isCreated());
+            mockMvc.perform(post("/notes")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(input2)))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.id").isNumber())
+                    .andExpect(jsonPath("$.title").value("TestTitle2"));
 
             mockMvc.perform(get("/notes/folders/{id}", 1))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.notes",hasSize(2)))
-                    .andExpect(jsonPath("$.notes[0].id").isNumber());
-
+                    .andExpect(jsonPath("$.notes", hasSize(2)))
+                    .andExpect(jsonPath("$.notes[0].id").isNumber())
+                    .andExpect(jsonPath("$.notes[1].id").isNumber());
         }
+
     }
 
     @Nested

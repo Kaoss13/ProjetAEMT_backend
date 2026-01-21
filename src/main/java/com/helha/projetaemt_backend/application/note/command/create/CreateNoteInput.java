@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 @Builder
 public class CreateNoteInput {
 
-    //public int id;
     public int idUser;
     public int idFolder;
     public String title;

@@ -64,10 +64,10 @@ public class GetAllFoldersWithNotesHandler {
             Note noteDomain = new Note();
             noteDomain.setContent(content);
 
-            dto.sizeBytes = noteDomain.getSizeBytes();
-            dto.lineCount = noteDomain.getLineCount();
-            dto.wordCount = noteDomain.getWordCount();
-            dto.charCount = noteDomain.getCharCount();
+            dto.sizeBytes = noteDomain.computeSizeBytes();
+            dto.lineCount = noteDomain.computeLineCount();
+            dto.wordCount = noteDomain.computeWordCount();
+            dto.charCount = noteDomain.computeCharCount();
 
             output.notes.add(dto);
         }

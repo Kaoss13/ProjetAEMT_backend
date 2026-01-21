@@ -22,7 +22,6 @@ public class NoteInputMapper {
 
     public DbNote toEntity(CreateNoteInput input, DbUser user, DbFolder folder) {
 
-        // Mapper les champs simples
         DbNote entity = modelMapper.map(input, DbNote.class);
         entity.user = user;
         entity.folder = folder;

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class DbNote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public int id;
+    public Integer id;
 
     @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)

@@ -33,10 +33,10 @@ public class PdfExportService {
         // Ajout des métadonnées calculées à la volée
         doc.add(new Paragraph("Créé le : " + note.createdAt));
         doc.add(new Paragraph("Dernière mise à jour : " + note.updatedAt));
-        doc.add(new Paragraph("Taille : " + noteDomain.getSizeBytes() + " bytes"));
-        doc.add(new Paragraph("Nombre de lignes : " + noteDomain.getLineCount()));
-        doc.add(new Paragraph("Nombre de mots : " + noteDomain.getWordCount()));
-        doc.add(new Paragraph("Nombre de caractères : " + noteDomain.getCharCount()));
+        doc.add(new Paragraph("Taille : " + noteDomain.computeSizeBytes() + " bytes"));
+        doc.add(new Paragraph("Nombre de lignes : " + noteDomain.computeLineCount()));
+        doc.add(new Paragraph("Nombre de mots : " + noteDomain.computeWordCount()));
+        doc.add(new Paragraph("Nombre de caractères : " + noteDomain.computeCharCount()));
         doc.add(new Paragraph(" "));
         doc.add(new Paragraph("Contenu :"));
 

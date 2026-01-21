@@ -1,14 +1,11 @@
 package com.helha.projetaemt_backend.application.note.command.update;
 
-import com.helha.projetaemt_backend.NoteInputMapper;
-import com.helha.projetaemt_backend.NoteMapper;
 import com.helha.projetaemt_backend.domain.note.Note;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 
@@ -42,10 +39,10 @@ public class UpdateNoteHandler {
 
         // === Mapping vers DTO enrichi ===
         UpdateNoteOutput output = modelMapper.map(updated, UpdateNoteOutput.class);
-        output.sizeBytes = noteDomain.getSizeBytes();
-        output.lineCount = noteDomain.getLineCount();
-        output.wordCount = noteDomain.getWordCount();
-        output.charCount = noteDomain.getCharCount();
+        output.sizeBytes = noteDomain.computeSizeBytes();
+        output.lineCount = noteDomain.computeLineCount();
+        output.wordCount = noteDomain.computeWordCount();
+        output.charCount = noteDomain.computeCharCount();
 
         return output;
     }

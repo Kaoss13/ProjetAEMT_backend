@@ -32,18 +32,18 @@ public class Note {
         this.content = content;
     }
 
-    public int getSizeBytes(){
+    public int computeSizeBytes(){
         return this.content.getBytes(StandardCharsets.UTF_8).length;
     }
-    public int getLineCount(){
+    public int computeLineCount(){
         return this.content.split("\r\n|\r|\n").length;
     }
-    public int getWordCount(){
+    public int computeWordCount(){
         return this.content.trim().isEmpty()
                 ? 0
                 : this.content.trim().split("\\s+").length;
     }
-    public int getCharCount(){
+    public int computeCharCount(){
         return this.content.length();
     }
 }

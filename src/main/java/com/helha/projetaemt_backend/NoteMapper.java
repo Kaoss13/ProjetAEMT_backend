@@ -12,7 +12,6 @@ import java.lang.reflect.Field;
 
 @Configuration
 public class NoteMapper {
-    private final DbNote entity = new DbNote();
 
     private final ModelMapper modelMapper;
 
@@ -68,10 +67,10 @@ public class NoteMapper {
             Note noteDomain = new Note();
             noteDomain.setContent(content);
 
-            setIfExists(dto, "sizeBytes", noteDomain.getSizeBytes());
-            setIfExists(dto, "lineCount", noteDomain.getLineCount());
-            setIfExists(dto, "wordCount", noteDomain.getWordCount());
-            setIfExists(dto, "charCount", noteDomain.getCharCount());
+            setIfExists(dto, "sizeBytes", noteDomain.computeSizeBytes());
+            setIfExists(dto, "lineCount", noteDomain.computeLineCount());
+            setIfExists(dto, "wordCount", noteDomain.computeWordCount());
+            setIfExists(dto, "charCount", noteDomain.computeCharCount());
         } catch (Exception ignored) {
             // Si le DTO n'a pas ces champs, on ignore
         }
@@ -104,6 +103,7 @@ public class NoteMapper {
 
 
     public DbNote toEntity(Note noteDomain, DbUser user, DbFolder folder) {
+        DbNote entity = new DbNote();
         entity.user = user;
         entity.folder = folder;
         entity.title = noteDomain.getTitle();
