@@ -36,6 +36,7 @@ public class UpdateNoteHandler {
                         n.lineCount = (input.content.isEmpty() ? 0 : input.content.split("\r\n|\r|\n").length);
                         n.wordCount = (input.content.trim().isEmpty() ? 0 : input.content.trim().split("\\s+").length);
                     }
+                    n.updatedAt = LocalDateTime.now();
 
                     return noteRepository.save(n);
                 }).orElseThrow(() -> new IllegalArgumentException("Note not found " + input.id));
