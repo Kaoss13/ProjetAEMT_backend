@@ -51,6 +51,11 @@ public class GetAllFoldersWithNotesHandler {
             dto.id_folder = n.folder.id;
             dto.title = n.title;
             dto.content = n.content;
+            dto.createdAt = n.createdAt;
+            dto.updatedAt = n.updatedAt;
+            dto.lineCount = n.lineCount;
+            dto.wordCount = n.wordCount;
+            dto.charCount = n.charCount;
             output.notes.add(dto);
         }
 
