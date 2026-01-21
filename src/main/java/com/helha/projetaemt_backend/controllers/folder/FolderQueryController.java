@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/folders")
-public class FolderQueryCommmandController {
+public class FolderQueryController {
     private final FolderQueryProcessor folderQueryProcessor;
 
-    public FolderQueryCommmandController(FolderQueryProcessor folderQueryProcessor) {
+    public FolderQueryController(FolderQueryProcessor folderQueryProcessor) {
         this.folderQueryProcessor = folderQueryProcessor;
     }
 
