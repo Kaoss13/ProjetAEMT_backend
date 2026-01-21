@@ -4,6 +4,7 @@ import com.helha.projetaemt_backend.application.user.exceptions.InvalidCredentia
 import com.helha.projetaemt_backend.application.utils.ICommandHandler;
 import com.helha.projetaemt_backend.infrastructure.user.DbUser;
 import com.helha.projetaemt_backend.infrastructure.user.IUserRepository;
+import com.helha.projetaemt_backend.infrastructure.utils.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +13,12 @@ public class LoginUserHandler implements ICommandHandler<LoginUserInput, LoginUs
 
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;  // Service JWT injecté
 
-    public LoginUserHandler(IUserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public LoginUserHandler(IUserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -30,6 +33,7 @@ public class LoginUserHandler implements ICommandHandler<LoginUserInput, LoginUs
         LoginUserOutput output = new LoginUserOutput();
         output.id = dbUser.id;
         output.userName = dbUser.userName;
+        output.token = jwtService.generateToken(dbUser.id, dbUser.userName);  // Génération du token
 
         return output;
     }
