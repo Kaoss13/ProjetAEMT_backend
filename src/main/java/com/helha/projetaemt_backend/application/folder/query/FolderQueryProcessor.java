@@ -7,12 +7,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FolderQueryProcessor {
-    private final PdfExportHandler pdfExportHandler;
     public final ZipExportHandler zipExportHandler;
     public final GetAllFoldersWithNotesHandler getAllFoldersWithNotesHandler;
 
-    public FolderQueryProcessor(PdfExportHandler pdfExportHandler, ZipExportHandler zipExportHandler, GetAllFoldersWithNotesHandler getAllFoldersWithNotesHandler) {
-        this.pdfExportHandler = pdfExportHandler;
+    public FolderQueryProcessor(ZipExportHandler zipExportHandler, GetAllFoldersWithNotesHandler getAllFoldersWithNotesHandler) {
         this.zipExportHandler = zipExportHandler;
         this.getAllFoldersWithNotesHandler = getAllFoldersWithNotesHandler;
     }
