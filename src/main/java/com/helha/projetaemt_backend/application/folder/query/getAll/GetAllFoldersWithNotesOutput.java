@@ -1,5 +1,6 @@
 package com.helha.projetaemt_backend.application.folder.query.getAll;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,11 @@ public class GetAllFoldersWithNotesOutput {
         public int id_folder;
         public String title;
         public String content;
+        public LocalDateTime createdAt;
+        public LocalDateTime updatedAt;
+        public int lineCount;
+        public int wordCount;
+        public int charCount;
     }
 
     public List<FolderDto> folders = new ArrayList<>();
