@@ -33,7 +33,7 @@ public class CreateNoteHandler {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         DbFolder folder;
-        if (input.idFolder != null) {
+        if (input.idFolder != 0) {
             folder = folderRepository.findById(input.idFolder)
                     .orElseThrow(() -> new RuntimeException("Folder not found"));
         } else {
