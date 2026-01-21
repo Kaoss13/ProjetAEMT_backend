@@ -2,7 +2,12 @@ package com.helha.projetaemt_backend.application.exportation;
 import com.helha.projetaemt_backend.application.note.exceptions.NoteNotFoundException;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -19,18 +24,30 @@ public class PdfExportHandler {
     }
 
 
-    public byte[] handle(List<Integer> noteIds, String appBaseUrl) throws Exception {
-        List<DbNote> notes = StreamSupport.stream(noteRepository.findAllById(noteIds).spliterator(), false)
-                .collect(Collectors.toList());
-
-        if (notes.isEmpty()) {
-            throw new RuntimeException("Aucune note trouvée pour les IDs : " + noteIds);
-        }
-        return pdfExportService.exportNotesToPdf(notes, appBaseUrl);
-    }
 
     public byte[] handle(int noteId, String appBaseUrl) throws Exception {
-        return handle(List.of(noteId), appBaseUrl);
+        DbNote mainNote = noteRepository.findById(noteId)
+                .orElseThrow(() -> new RuntimeException("Note introuvable avec l'ID : " + noteId));
+
+        // Parse le contenu pour trouver les mentions
+        org.jsoup.nodes.Document htmlDoc = Jsoup.parse(mainNote.content);
+        Elements mentions = htmlDoc.select("span.note-mention");
+
+        List<Integer> allIds = new ArrayList<>();
+        allIds.add(noteId); // note principale
+
+        for (Element mention : mentions) {
+            String mentionedId = mention.attr("data-id");
+            if (mentionedId != null && !mentionedId.isEmpty()) {
+                allIds.add(Integer.parseInt(mentionedId));
+            }
+        }
+
+        // Récupère toutes les notes (principale + mentionnées)
+        List<DbNote> notes = StreamSupport.stream(noteRepository.findAllById(allIds).spliterator(), false)
+                .collect(Collectors.toList());
+
+        return pdfExportService.exportNotesToPdf(notes, appBaseUrl);
     }
 
 }
