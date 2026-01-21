@@ -1,0 +1,40 @@
+package com.helha.projetaemt_backend.controllers.search;
+
+import com.helha.projetaemt_backend.application.search.query.SearchInput;
+import com.helha.projetaemt_backend.application.search.query.SearchOutput;
+import com.helha.projetaemt_backend.application.search.query.SearchQueryProcessor;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+// Controller pour la recherche Quick Search
+@RestController
+@RequestMapping("/search")
+@Tag(name = "Search", description = "Recherche rapide")
+public class SearchQueryController {
+
+    private final SearchQueryProcessor searchQueryProcessor;
+
+    public SearchQueryController(SearchQueryProcessor searchQueryProcessor) {
+        this.searchQueryProcessor = searchQueryProcessor;
+    }
+
+    // GET /search?q=texte&userId=1&limit=20
+    @Operation(summary = "Recherche fuzzy", description = "Ex: 'chn' trouve 'chien'")
+    @ApiResponse(responseCode = "200")
+    @GetMapping
+    public ResponseEntity<SearchOutput> search(
+            @RequestParam("q") String query,
+            @RequestParam int userId,
+            @RequestParam(defaultValue = "20") int limit
+    ) {
+        SearchInput input = new SearchInput();
+        input.query = query;
+        input.userId = userId;
+        input.limit = limit;
+
+        return ResponseEntity.ok(searchQueryProcessor.searchHandler.handle(input));
+    }
+}
