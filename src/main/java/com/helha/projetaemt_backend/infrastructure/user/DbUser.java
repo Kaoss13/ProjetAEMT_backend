@@ -2,8 +2,12 @@ package com.helha.projetaemt_backend.infrastructure.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "users")
 public class DbUser {

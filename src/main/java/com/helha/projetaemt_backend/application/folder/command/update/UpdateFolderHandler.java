@@ -23,7 +23,7 @@ public class UpdateFolderHandler implements IEffectCommandHandler<UpdateFolderIn
                 .findById(input.id)
                 .map(f -> {
                     // 1) Vérifier l’appartenance AU PLUS TÔT
-                    if (f.user == null || f.user.id != input.userId) {
+                    if (f.getUser() == null || f.getUser().getId() != input.userId) {
                         throw new ResponseStatusException(
                                 HttpStatus.BAD_REQUEST,
                                 "Folder does not belong to this user"
