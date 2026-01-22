@@ -8,7 +8,10 @@ import com.helha.projetaemt_backend.infrastructure.note.DbNote;
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
 import com.helha.projetaemt_backend.infrastructure.user.DbUser;
 import com.helha.projetaemt_backend.infrastructure.user.IUserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.time.LocalDateTime;
 
 @Service
@@ -30,15 +33,24 @@ public class CreateNoteHandler {
     public CreateNoteOutput handle(CreateNoteInput input) {
 
         DbUser user = userRepository.findById(input.idUser)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found"
+                ));
 
         DbFolder folder;
         if (input.idFolder != 0) {
             folder = folderRepository.findById(input.idFolder)
-                    .orElseThrow(() -> new RuntimeException("Folder not found"));
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Folder not found"
+                    ));
         } else {
             folder = folderRepository.findByUser_IdAndParentFolderIsNull(input.idUser)
-                    .orElseThrow(() -> new RuntimeException("Root folder not found"));
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Root folder not found"
+                    ));
         }
 
 

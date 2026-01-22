@@ -6,8 +6,11 @@ import com.helha.projetaemt_backend.infrastructure.dossier.IFolderRepository;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
 import com.helha.projetaemt_backend.infrastructure.user.IUserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -28,11 +31,25 @@ public class GetAllFoldersWithNotesHandler {
 
         // Vérifier que le user existe
         if (!userRepository.existsById(userId)) {
-            throw new IllegalArgumentException("The user with this ID does not exist");
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "User not found"
+            );
         }
 
         List<DbFolder> folders = folderRepository.findAllByUser_Id(userId);
         List<DbNote> notes = noteRepository.findAllByUser_Id(userId);
+
+        //Tri alphabétique
+        folders.sort(Comparator.comparing(
+                f -> f.title == null ? "" : f.title,
+                String.CASE_INSENSITIVE_ORDER
+        ));
+
+        notes.sort(Comparator.comparing(
+                n -> n.title == null ? "" : n.title,
+                String.CASE_INSENSITIVE_ORDER
+        ));
 
         GetAllFoldersWithNotesOutput output = new GetAllFoldersWithNotesOutput();
 

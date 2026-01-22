@@ -1,11 +1,14 @@
 package com.helha.projetaemt_backend.application.exportation;
+
 import com.helha.projetaemt_backend.application.note.exceptions.NoteNotFoundException;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +17,6 @@ import java.util.stream.StreamSupport;
 
 @Service
 public class PdfExportHandler {
-
     private final INoteRepository noteRepository;
     private final PdfExportService pdfExportService;
 
@@ -23,11 +25,12 @@ public class PdfExportHandler {
         this.pdfExportService = pdfExportService;
     }
 
-
-
     public byte[] handle(int noteId, String appBaseUrl) throws Exception {
         DbNote mainNote = noteRepository.findById(noteId)
-                .orElseThrow(() -> new RuntimeException("Note introuvable avec l'ID : " + noteId));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Note not found"
+                ));
 
         org.jsoup.nodes.Document htmlDoc = Jsoup.parse(mainNote.content);
         Elements mentions = htmlDoc.select("span.note-mention");

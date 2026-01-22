@@ -99,7 +99,7 @@ class UserControllerIT {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(payload2)
                     )
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isConflict());
         }
     }
 
@@ -156,7 +156,7 @@ class UserControllerIT {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(payload)
                     )
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isUnauthorized());
         }
 
         @Test
@@ -188,7 +188,7 @@ class UserControllerIT {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(loginPayload)
                     )
-                    .andExpect(status().isBadRequest());
+                    .andExpect(status().isUnauthorized());
         }
     }
 }

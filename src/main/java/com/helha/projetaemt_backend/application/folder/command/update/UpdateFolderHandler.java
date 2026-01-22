@@ -2,7 +2,9 @@ package com.helha.projetaemt_backend.application.folder.command.update;
 
 import com.helha.projetaemt_backend.application.utils.IEffectCommandHandler;
 import com.helha.projetaemt_backend.infrastructure.dossier.IFolderRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -17,14 +19,16 @@ public class UpdateFolderHandler implements IEffectCommandHandler<UpdateFolderIn
     //Vérifier que le nom de celui-ci n'existe pas au même niveau +VERIFIER SI DOSSIER PARENT OU NON POUR CELa
     @Override
     public void handle(final UpdateFolderInput input) {
-        //Le titre est obligatoire
-        if (input.title == null || input.title.trim().isEmpty()) {
-            throw new IllegalArgumentException("The folder title is mandatory.");
-        }
-
         folderRepository
                 .findById(input.id)
                 .map(f -> {
+                    // 1) Vérifier l’appartenance AU PLUS TÔT
+                    if (f.getUser() == null || f.getUser().getId() != input.userId) {
+                        throw new ResponseStatusException(
+                                HttpStatus.BAD_REQUEST,
+                                "Folder does not belong to this user"
+                        );
+                    }
                     //Ici pas besoin de toLowerCase() car equalsIgnoreCase le fait déjà
                     String newTitle = input.title.trim();
                     if (f.title != null && f.title.equalsIgnoreCase(newTitle)) {
@@ -47,14 +51,17 @@ public class UpdateFolderHandler implements IEffectCommandHandler<UpdateFolderIn
                                 );
                     }
                     if (exists) {
-                        throw new IllegalArgumentException("Folder already exists");
-                    }
-                    if (!folderRepository.existsByIdAndUser_Id(input.id, input.userId)) {
-                        throw new IllegalArgumentException("Folder does not belong to this user");
+                        throw new ResponseStatusException(
+                                HttpStatus.CONFLICT,
+                                "Folder already exists"
+                        );
                     }
 
                     f.title = newTitle;
                     return folderRepository.save(f);
-                }).orElseThrow(() -> new IllegalArgumentException("Folder not found" + input.id));
+                }).orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Folder not found"
+                ));
     }
 }

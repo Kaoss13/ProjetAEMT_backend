@@ -1,14 +1,15 @@
 package com.helha.projetaemt_backend.application.user.command.create;
 
-import com.helha.projetaemt_backend.application.user.exceptions.UserAlreadyExistsException;
 import com.helha.projetaemt_backend.application.utils.ICommandHandler;
 import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
 import com.helha.projetaemt_backend.infrastructure.dossier.IFolderRepository;
 import com.helha.projetaemt_backend.infrastructure.user.DbUser;
 import com.helha.projetaemt_backend.infrastructure.user.IUserRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -30,7 +31,10 @@ public class CreateUserHandler implements ICommandHandler<CreateUserInput, Creat
     @Override
     public CreateUserOutput handle(CreateUserInput input) {
         if (userRepository.existsByUserName(input.userName)) {
-            throw new UserAlreadyExistsException(input.userName);
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "User already exists"
+            );
         }
 
         DbUser dbUser = new DbUser();
