@@ -26,19 +26,19 @@ public class FolderQueryController {
     }
 
     @Operation(
-            summary = "Récupérer tous les dossiers et notes d’un utilisateur",
+            summary = "Get all folders and notes for a user",
             description = """
-                Retourne deux listes plates :
+                Returns two flat lists:
                 - folders
                 - notes
 
-                Le frontend reconstruit l’arbre via buildFolderTree(folders, notes).
+                The frontend reconstructs the tree via buildFolderTree(folders, notes).
                 """
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Folders et notes récupérés",
+                    description = "Folders and notes retrieved",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = GetAllFoldersWithNotesOutput.class)
@@ -63,17 +63,17 @@ public class FolderQueryController {
     }
 
     @Operation(
-            summary = "Exporter un dossier en ZIP",
+            summary = "Export a folder to ZIP",
             description = """
-            Génère une archive ZIP contenant le dossier,
-            ses sous-dossiers et les notes associées.
-            Le fichier est retourné en téléchargement.
+            Generates a ZIP archive containing the folder,
+            its subfolders and associated notes.
+            The file is returned for download.
             """
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Archive ZIP générée avec succès",
+                    description = "ZIP archive generated successfully",
                     content = @Content(
                             mediaType = "application/octet-stream"
                     )
@@ -88,7 +88,7 @@ public class FolderQueryController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Erreur lors de la génération du ZIP",
+                    description = "Error generating ZIP",
                     content = @Content(
                             mediaType = "application/problem+json",
                             schema = @Schema(implementation = ProblemDetail.class)

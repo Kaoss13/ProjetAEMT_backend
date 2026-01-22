@@ -38,11 +38,9 @@ public class UpdateNoteHandler {
                         "Note introuvable"
                 ));
 
-        // === Calcul des métadonnées à la volée ===
         Note noteDomain = new Note();
         noteDomain.setContent(updated.content != null ? updated.content : "");
 
-        // === Mapping vers DTO enrichi ===
         UpdateNoteOutput output = modelMapper.map(updated, UpdateNoteOutput.class);
         output.sizeBytes = noteDomain.computeSizeBytes();
         output.lineCount = noteDomain.computeLineCount();

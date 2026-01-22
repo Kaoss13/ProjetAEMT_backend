@@ -14,7 +14,7 @@ public class LoginUserHandler implements ICommandHandler<LoginUserInput, LoginUs
 
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;  // Service JWT injecté
+    private final JwtService jwtService;
 
     public LoginUserHandler(IUserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
@@ -40,7 +40,7 @@ public class LoginUserHandler implements ICommandHandler<LoginUserInput, LoginUs
         LoginUserOutput output = new LoginUserOutput();
         output.id = dbUser.id;
         output.userName = dbUser.userName;
-        output.token = jwtService.generateToken(dbUser.id, dbUser.userName);  // Génération du token
+        output.token = jwtService.generateToken(dbUser.id, dbUser.userName);
 
         return output;
     }

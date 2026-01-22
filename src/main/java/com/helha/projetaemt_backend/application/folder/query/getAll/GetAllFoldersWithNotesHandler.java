@@ -29,7 +29,6 @@ public class GetAllFoldersWithNotesHandler {
 
     public GetAllFoldersWithNotesOutput handle(int userId) {
 
-        // Vérifier que le user existe
         if (!userRepository.existsById(userId)) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
@@ -40,7 +39,6 @@ public class GetAllFoldersWithNotesHandler {
         List<DbFolder> folders = folderRepository.findAllByUser_Id(userId);
         List<DbNote> notes = noteRepository.findAllByUser_Id(userId);
 
-        //Tri alphabétique
         folders.sort(Comparator.comparing(
                 f -> f.title == null ? "" : f.title,
                 String.CASE_INSENSITIVE_ORDER
@@ -53,7 +51,6 @@ public class GetAllFoldersWithNotesHandler {
 
         GetAllFoldersWithNotesOutput output = new GetAllFoldersWithNotesOutput();
 
-        // Mapper les dossiers
         for (DbFolder f : folders) {
             GetAllFoldersWithNotesOutput.FolderDto dto = new GetAllFoldersWithNotesOutput.FolderDto();
             dto.id = f.id;
@@ -63,7 +60,6 @@ public class GetAllFoldersWithNotesHandler {
             output.folders.add(dto);
         }
 
-        // Mapper les notes avec métadonnées calculées
         for (DbNote n : notes) {
             if (n.folder == null) continue;
 
@@ -76,7 +72,6 @@ public class GetAllFoldersWithNotesHandler {
             dto.createdAt = n.createdAt;
             dto.updatedAt = n.updatedAt;
 
-            // Calcul des métadonnées via le domaine
             String content = n.content != null ? n.content : "";
             Note noteDomain = new Note();
             noteDomain.setContent(content);

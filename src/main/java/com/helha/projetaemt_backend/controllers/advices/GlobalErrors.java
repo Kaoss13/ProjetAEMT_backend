@@ -17,7 +17,7 @@ public class GlobalErrors {
     ProblemDetail notFound(ResponseStatusException exception){
         ProblemDetail problemDetail = ProblemDetail.forStatus(exception.getStatusCode());
         problemDetail.setTitle(exception.getStatusCode().toString());
-        problemDetail.setDetail(exception.getReason()); // message mit dans le throw du handler
+        problemDetail.setDetail(exception.getReason());
 
         return problemDetail;
     }

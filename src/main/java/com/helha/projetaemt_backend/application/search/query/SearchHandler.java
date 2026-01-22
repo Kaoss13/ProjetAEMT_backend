@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// Handler pour la recherche Quick Search
 @Service
 public class SearchHandler implements IQueryHandler<SearchInput, SearchOutput> {
 
@@ -40,7 +39,6 @@ public class SearchHandler implements IQueryHandler<SearchInput, SearchOutput> {
 
         SearchOutput output = new SearchOutput();
 
-        // Query vide = pas de résultats
         if (input.query == null || input.query.trim().isEmpty()) {
             return output;
         }
@@ -48,7 +46,6 @@ public class SearchHandler implements IQueryHandler<SearchInput, SearchOutput> {
         String q = input.query.toLowerCase();
         List<SearchOutput.SearchResultItem> results = new ArrayList<>();
 
-        // Recherche dans les dossiers
         for (DbFolder folder : folderRepository.findAllByUser_Id(input.userId)) {
             double score = fuzzyScore(q, folder.title.toLowerCase());
             if (score > 0) {
@@ -61,10 +58,7 @@ public class SearchHandler implements IQueryHandler<SearchInput, SearchOutput> {
             }
         }
 
-        // Recherche dans les notes
         for (DbNote note : noteRepository.findAllByUser_Id(input.userId)) {
-
-            // Match sur le titre
             double titleScore = fuzzyScore(q, note.title != null ? note.title.toLowerCase() : "");
             if (titleScore > 0) {
                 SearchOutput.SearchResultItem item = new SearchOutput.SearchResultItem();
@@ -72,11 +66,10 @@ public class SearchHandler implements IQueryHandler<SearchInput, SearchOutput> {
                 item.id = note.id;
                 item.folderId = note.folder != null ? note.folder.id : null;
                 item.title = note.title;
-                item.score = titleScore * 1.5; // Bonus titre
+                item.score = titleScore * 1.5;
                 results.add(item);
             }
 
-            // Match sur le contenu
             if (note.content != null) {
                 String content = note.content.toLowerCase();
                 double contentScore = fuzzyScore(q, content);
@@ -94,36 +87,29 @@ public class SearchHandler implements IQueryHandler<SearchInput, SearchOutput> {
             }
         }
 
-        // Trie par score décroissant
         results.sort((a, b) -> Double.compare(b.score, a.score));
-
-        // Limite les résultats
         output.results = results.subList(0, Math.min(input.limit, results.size()));
 
         return output;
     }
 
-    // Score fuzzy: "chn" match "chien"
     private double fuzzyScore(String query, String text) {
-        // Match exact = score max
         if (text.contains(query)) {
             return 1.0;
         }
 
-        // Match fuzzy: chaque char doit apparaître dans l'ordre
         int textIndex = 0;
         for (char c : query.toCharArray()) {
             textIndex = text.indexOf(c, textIndex);
             if (textIndex < 0) {
-                return 0; // Char non trouvé
+                return 0;
             }
             textIndex++;
         }
 
-        return 0.5; // Match fuzzy
+        return 0.5;
     }
 
-    // Extrait un snippet autour du match
     private String extractSnippet(String text, String query) {
         int idx = text.toLowerCase().indexOf(query.charAt(0));
         if (idx < 0) idx = 0;
@@ -138,7 +124,6 @@ public class SearchHandler implements IQueryHandler<SearchInput, SearchOutput> {
         return snippet;
     }
 
-    // Calcule le numéro de ligne
     private int getLineNumber(String text, int position) {
         int line = 1;
         for (int i = 0; i < Math.min(position, text.length()); i++) {

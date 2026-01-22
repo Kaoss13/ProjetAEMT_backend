@@ -32,7 +32,6 @@ public class CreateFolderHandler implements ICommandHandler<CreateFolderInput, C
     @Override
     public CreateFolderOutput handle(CreateFolderInput input) {
 
-        //Ici on fournit le statut + le message
         DbUser user = userRepository.findById(input.userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,

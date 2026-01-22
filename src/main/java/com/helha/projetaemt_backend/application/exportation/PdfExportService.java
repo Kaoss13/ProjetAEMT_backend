@@ -51,7 +51,6 @@ public class PdfExportService {
 
         collectAllMentionedNotes(allNotes);
 
-        // ✅ Sommaire
         doc.add(new Paragraph("Sommaire :", titleFont));
         for (DbNote n : allNotes.values()) {
             Anchor tocLink = new Anchor(n.title, linkFont);
@@ -61,24 +60,20 @@ public class PdfExportService {
         }
         doc.add(new Paragraph(" "));
 
-        // ✅ Sections pour chaque note
         for (DbNote dbNote : allNotes.values()) {
             Anchor titleAnchor = new Anchor(dbNote.title, titleFont);
             titleAnchor.setName("note-" + dbNote.id);
             doc.add(titleAnchor);
             doc.add(new Paragraph(" "));
 
-            // ✅ Informations principales
             doc.add(new Paragraph("Créé le : " + dbNote.createdAt.format(formatter)));
             doc.add(new Paragraph("Dernière mise à jour : " + dbNote.updatedAt.format(formatter)));
 
-            // ✅ Ajout du nom de l'utilisateur et du dossier
             String userName = dbNote.user != null ? dbNote.user.userName : "Utilisateur inconnu";
             String folderName = dbNote.folder != null ? dbNote.folder.title : "Sans dossier";
             doc.add(new Paragraph("Auteur : " + userName));
             doc.add(new Paragraph("Dossier : " + folderName));
 
-            // ✅ Métadonnées calculées
             Note noteDomain = new Note(dbNote.id,
                     dbNote.user != null ? dbNote.user.id : 0,
                     dbNote.folder != null ? dbNote.folder.getId() : 0,
@@ -91,7 +86,6 @@ public class PdfExportService {
             doc.add(new Paragraph("Nombre de caractères : " + noteDomain.computeCharCount(), metaFont));
             doc.add(new Paragraph(" "));
 
-            // ✅ Contenu avec mentions transformées en liens
             Paragraph paragraph = new Paragraph();
             appendContentWithLinks(dbNote, allNotes, appBaseUrl, paragraph, linkFont);
             doc.add(paragraph);

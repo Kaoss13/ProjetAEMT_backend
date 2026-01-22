@@ -13,10 +13,9 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-// Controller pour la recherche Quick Search
 @RestController
 @RequestMapping("/search")
-@Tag(name = "Search", description = "Recherche rapide")
+@Tag(name = "Search", description = "Quick search")
 public class SearchQueryController {
 
     private final SearchQueryProcessor searchQueryProcessor;
@@ -26,24 +25,24 @@ public class SearchQueryController {
     }
 
     @Operation(
-            summary = "Recherche fuzzy",
+            summary = "Fuzzy search",
             description = """
-            Recherche rapide (fuzzy) dans les dossiers et les notes d’un utilisateur.
+            Fuzzy search in user folders and notes.
 
-            Comportement :
-            - La recherche est insensible à la casse
-            - Une query vide retourne une liste vide
-            - Les résultats sont triés par pertinence décroissante
-            - Le nombre de résultats est limité par le paramètre `limit`
+            Behavior:
+            - Case-insensitive search
+            - Empty query returns an empty list
+            - Results are sorted by relevance (descending)
+            - Number of results is limited by the `limit` parameter
 
-            Exemple :
-            - 'chn' peut trouver 'chien'
+            Example:
+            - 'chn' can match 'chien'
             """
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Résultats de la recherche (liste possiblement vide)",
+                    description = "Search results (possibly empty list)",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = SearchOutput.class)
@@ -66,7 +65,6 @@ public class SearchQueryController {
                     )
             )
     })
-    // GET /search?q=texte&userId=1&limit=20
     @GetMapping
     public ResponseEntity<SearchOutput> search(
             @RequestParam("q") String query,

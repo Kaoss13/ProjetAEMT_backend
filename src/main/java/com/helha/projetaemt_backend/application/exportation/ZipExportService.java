@@ -30,7 +30,6 @@ public class ZipExportService {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         ZipOutputStream zipOut = new ZipOutputStream(output);
 
-        // Appel récursif pour ajouter le dossier et ses sous-dossiers
         addFolderToZip(zipOut, parentFolder, parentFolder.title);
 
         zipOut.close();

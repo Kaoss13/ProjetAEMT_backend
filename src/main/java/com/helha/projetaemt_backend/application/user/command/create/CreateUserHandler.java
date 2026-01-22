@@ -51,12 +51,6 @@ public class CreateUserHandler implements ICommandHandler<CreateUserInput, Creat
         rootFolder.setParentFolder(null);
         folderRepository.save(rootFolder);
 
-
-        /*CreateUserOutput output = new CreateUserOutput();
-        output.id = savedUser.id;
-        output.userName = savedUser.userName;
-
-        return output;*/
         return modelMapper.map(savedUser, CreateUserOutput.class);
     }
 }

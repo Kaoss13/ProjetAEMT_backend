@@ -27,11 +27,11 @@ public class NoteQueryController {
     }
 
     @Operation(
-            summary = "Récupérer une note par ID",
-            description = "Retourne la note demandée. 404 si la note n'existe pas."
+            summary = "Get a note by ID",
+            description = "Returns the requested note. 404 if the note does not exist."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Note trouvée"),
+            @ApiResponse(responseCode = "200", description = "Note found"),
             @ApiResponse(
                     responseCode = "404",
                     description = "Note not found",
@@ -46,16 +46,16 @@ public class NoteQueryController {
     }
 
     @Operation(
-            summary = "Récupérer les notes d'un dossier",
+            summary = "Get notes by folder",
             description = """
-        Retourne la liste des notes d'un dossier.
-        404 si le dossier n'existe pas.
+        Returns the list of notes in a folder.
+        404 if the folder does not exist.
         """
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "Liste des notes récupérée",
+                    description = "Notes list retrieved",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = GetByIdFolderNoteOutput.class)
@@ -76,16 +76,16 @@ public class NoteQueryController {
     }
 
     @Operation(
-            summary = "Exporter une note en PDF",
+            summary = "Export a note to PDF",
             description = """
-            Génère un fichier PDF contenant la note et ses métadonnées.
-            Le fichier est retourné en téléchargement.
+            Generates a PDF file containing the note and its metadata.
+            The file is returned for download.
             """
     )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "PDF généré avec succès",
+                    description = "PDF generated successfully",
                     content = @Content(
                             mediaType = "application/pdf"
                     )
@@ -100,7 +100,7 @@ public class NoteQueryController {
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Erreur lors de la génération du PDF",
+                    description = "Error generating PDF",
                     content = @Content(
                             mediaType = "application/problem+json",
                             schema = @Schema(implementation = ProblemDetail.class)

@@ -16,33 +16,26 @@ public class UpdateFolderHandler implements IEffectCommandHandler<UpdateFolderIn
         this.folderRepository = folderRepository;
     }
 
-    //Vérifier que le nom de celui-ci n'existe pas au même niveau +VERIFIER SI DOSSIER PARENT OU NON POUR CELa
     @Override
     public void handle(final UpdateFolderInput input) {
         folderRepository
                 .findById(input.id)
                 .map(f -> {
-                    // 1) Vérifier l’appartenance AU PLUS TÔT
                     if (f.getUser() == null || f.getUser().getId() != input.userId) {
                         throw new ResponseStatusException(
                                 HttpStatus.BAD_REQUEST,
                                 "Ce dossier n'appartient pas à cet utilisateur"
                         );
                     }
-                    //Ici pas besoin de toLowerCase() car equalsIgnoreCase le fait déjà
                     String newTitle = input.title.trim();
                     if (f.title != null && f.title.equalsIgnoreCase(newTitle)) {
-                        return f; // rien à faire car même title
+                        return f;
                     }
-                    //Gérer l'unicité des dossiers
                     boolean exists;
-                    //Si celui-ci est un dossier parent
                     if (f.getParentFolder() == null) {
                         exists = folderRepository
                                 .existsByUser_IdAndParentFolderIsNullAndTitleIgnoreCase(input.userId, newTitle);
-                    }
-                    //Si celui-ci est un sous dossier
-                    else {
+                    } else {
                         exists = folderRepository
                                 .existsByUser_IdAndParentFolder_IdAndTitleIgnoreCase(
                                         input.userId,

@@ -28,14 +28,14 @@ public class FolderCommandController {
     }
 
     @Operation(
-            summary = "Créer un dossier",
+            summary = "Create a folder",
             description = """
-                Crée un nouveau dossier pour un utilisateur donné.
-                - Le titre est obligatoire et ne peut pas dépasser 255 caractères.
-                - parentFolderId = null => dossier racine
-                - parentFolderId != null => sous-dossier
-                - Un sous-dossier ne peut être créé que dans un dossier appartenant au même utilisateur.
-                Retourne 201 avec l'en-tête Location pointant vers la ressource créée.
+                Creates a new folder for a given user.
+                - Title is required and cannot exceed 255 characters.
+                - parentFolderId = null => root folder
+                - parentFolderId != null => subfolder
+                - A subfolder can only be created in a folder belonging to the same user.
+                Returns 201 with Location header pointing to the created resource.
                 """
     )
     @ApiResponses({
@@ -92,18 +92,18 @@ public class FolderCommandController {
     }
 
     @Operation(
-            summary = "Renommer un dossier",
+            summary = "Rename a folder",
             description = """
-            Renomme un dossier existant.
-    
-            Règles :
-            - Le titre est obligatoire et ne peut pas dépasser 255 caractères.
-            - Le dossier doit exister.
-            - Le dossier doit appartenir à l'utilisateur fourni (userId).
-            - Le nouveau titre doit être unique au même niveau (même parentFolder) pour un même utilisateur.
-    
-            Remarque :
-            - Cette opération ne déplace pas le dossier (pas de modification de parentFolder).
+            Renames an existing folder.
+
+            Rules:
+            - Title is required and cannot exceed 255 characters.
+            - The folder must exist.
+            - The folder must belong to the provided user (userId).
+            - The new title must be unique at the same level (same parentFolder) for the same user.
+
+            Note:
+            - This operation does not move the folder (no parentFolder modification).
             """
     )
     @ApiResponses({
@@ -143,11 +143,11 @@ public class FolderCommandController {
     }
 
     @Operation(
-            summary = "Supprimer un dossier",
+            summary = "Delete a folder",
             description = """
-            Supprime un dossier par son identifiant.
-            - La suppression est récursive : les sous-dossiers et les notes associées sont supprimés via ON DELETE CASCADE.
-            Retourne 204 si la suppression a réussi.
+            Deletes a folder by its identifier.
+            - Deletion is recursive: subfolders and associated notes are deleted via ON DELETE CASCADE.
+            Returns 204 if deletion was successful.
             """
     )
     @ApiResponses({

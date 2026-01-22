@@ -30,20 +30,20 @@ public class NoteCommandController {
     }
 
     @Operation(
-            summary = "Créer une note",
+            summary = "Create a note",
             description = """
-        Crée une nouvelle note pour un utilisateur donné.
+        Creates a new note for a given user.
 
-        Règles :
-        - L'utilisateur doit exister.
-        - La note est associée à un dossier existant.
-        - Si idFolder = 0, la note est créée dans le dossier racine de l'utilisateur.
-        - Le titre est optionnel.
-        - Le contenu est optionnel.
+        Rules:
+        - The user must exist.
+        - The note is associated with an existing folder.
+        - If idFolder = 0, the note is created in the user's root folder.
+        - Title is optional.
+        - Content is optional.
 
-        Remarques :
-        - Les métadonnées (taille, nombre de lignes, mots, caractères) sont calculées automatiquement.
-        - Les dates de création et de mise à jour sont générées côté serveur.
+        Notes:
+        - Metadata (size, line count, word count, character count) are computed automatically.
+        - Creation and update dates are generated server-side.
         """
     )
     @ApiResponses({
@@ -79,16 +79,16 @@ public class NoteCommandController {
     }
 
     @Operation(
-            summary = "Mettre à jour une note",
+            summary = "Update a note",
             description = """
-            Met à jour une note existante.
+            Updates an existing note.
 
-            Règles :
-            - La note doit exister.
-            - title et content sont optionnels : seuls les champs fournis (non null) sont modifiés.
+            Rules:
+            - The note must exist.
+            - Title and content are optional: only provided (non-null) fields are modified.
 
-            Retour :
-            - 204 si la mise à jour a réussi.
+            Returns:
+            - 204 if update was successful.
             """
     )
     @ApiResponses({
@@ -109,15 +109,15 @@ public class NoteCommandController {
     }
 
     @Operation(
-            summary = "Supprimer une note",
+            summary = "Delete a note",
             description = """
-        Supprime une note existante.
+        Deletes an existing note.
 
-        Règles :
-        - La note doit exister.
+        Rules:
+        - The note must exist.
 
-        Remarque :
-        - La suppression est définitive.
+        Note:
+        - Deletion is permanent.
         """
     )
     @ApiResponses({
