@@ -5,7 +5,10 @@ import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
 import com.helha.projetaemt_backend.infrastructure.dossier.IFolderRepository;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
+import com.helha.projetaemt_backend.infrastructure.user.IUserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,16 +18,26 @@ import java.util.List;
 @Service
 public class SearchHandler implements IQueryHandler<SearchInput, SearchOutput> {
 
+    private final IUserRepository userRepository;
     private final INoteRepository noteRepository;
     private final IFolderRepository folderRepository;
 
-    public SearchHandler(INoteRepository noteRepository, IFolderRepository folderRepository) {
+    public SearchHandler(IUserRepository userRepository,
+                         INoteRepository noteRepository, IFolderRepository folderRepository) {
+        this.userRepository = userRepository;
         this.noteRepository = noteRepository;
         this.folderRepository = folderRepository;
     }
 
     @Override
     public SearchOutput handle(SearchInput input) {
+        if (!userRepository.existsById(input.userId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "User not found"
+            );
+        }
+
         SearchOutput output = new SearchOutput();
 
         // Query vide = pas de résultats

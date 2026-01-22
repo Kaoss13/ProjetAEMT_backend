@@ -59,7 +59,11 @@ class FolderControllerIT {
         jdbc.update("INSERT INTO users (id, user_name, hash_password) VALUES (2, 'bob', 'x')");
 
         // Dossier racine pour Alice (ID 10)
-        jdbc.update("INSERT INTO folder (id, id_user, title, created_at) VALUES (10, 1, 'Projets', NOW())");
+        jdbc.update("""
+    INSERT INTO folder (id, id_user, id_parent_folder, title, created_at)
+    VALUES (10, 1, NULL, 'Projets', NOW())
+""");
+
     }
 
     // --- TESTS COMMAND: CREATE ---

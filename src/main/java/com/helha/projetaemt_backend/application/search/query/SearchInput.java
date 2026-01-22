@@ -4,6 +4,7 @@ package com.helha.projetaemt_backend.application.search.query;
 public class SearchInput {
 
     // Texte recherché (fuzzy)
+
     public String query;
 
     // ID utilisateur

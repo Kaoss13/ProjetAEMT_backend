@@ -7,7 +7,9 @@ import com.helha.projetaemt_backend.mapping.folder.CreateFolderOutputMapper;
 import com.helha.projetaemt_backend.application.utils.ICommandHandler;
 import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
 import com.helha.projetaemt_backend.infrastructure.dossier.IFolderRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class CreateFolderHandler implements ICommandHandler<CreateFolderInput, CreateFolderOutput> {
@@ -30,44 +32,50 @@ public class CreateFolderHandler implements ICommandHandler<CreateFolderInput, C
     @Override
     public CreateFolderOutput handle(CreateFolderInput input) {
 
-        if (input.title == null || input.title.trim().isEmpty()) {
-            throw new IllegalArgumentException("The folder title is mandatory.");
-        }
-
+        //Ici on fournit le statut + le message
         DbUser user = userRepository.findById(input.userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found"
+                ));
+
 
         DbFolder parentFolder;
-
         if (input.parentFolderId == null || input.parentFolderId == 0) {
             parentFolder = folderRepository.findByUser_IdAndParentFolderIsNull(input.userId)
-                    .orElseThrow(() -> new IllegalArgumentException("Root folder not found for this user."));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Root folder not found for this user."
+                    ));
         }
         else {
             parentFolder = folderRepository.findById(input.parentFolderId)
-                    .orElseThrow(() -> new IllegalArgumentException("Parent folder not found"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parent folder not found"
+                    ));
 
             if (parentFolder.user.id != input.userId) {
-                throw new IllegalArgumentException("Parent folder does not belong to this user.");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Parent folder does not belong to this user."
+                );
             }
         }
 
-        String normalizedTitle = input.title.trim();
 
+        String normalizedTitle = input.title.trim();
         boolean alreadyExists =
                 folderRepository.existsByUser_IdAndParentFolder_IdAndTitleIgnoreCase(
                         input.userId,
                         parentFolder.getId(),
                         normalizedTitle
                 );
-
         if (alreadyExists) {
-            throw new IllegalArgumentException("Folder already exists");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Folder already exists"
+            );
         }
 
         DbFolder entity = createFolderInputMapper.toEntity(input, user, parentFolder);
         DbFolder saved = folderRepository.save(entity);
-
         return createFolderOutputMapper.toCreateOutput(saved);
     }
 

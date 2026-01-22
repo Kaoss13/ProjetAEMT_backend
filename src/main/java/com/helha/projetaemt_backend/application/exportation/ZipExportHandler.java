@@ -4,7 +4,9 @@ import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
 import com.helha.projetaemt_backend.infrastructure.dossier.IFolderRepository;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -22,8 +24,10 @@ public class ZipExportHandler {
 
     public byte[] handle(int folderId) throws Exception {
         DbFolder folder = folderRepository.findById(folderId)
-                .orElseThrow(() -> new RuntimeException("Dossier introuvable avec l'ID : " + folderId));
-
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Folder not found"
+                ));
         return zipExportService.exportFolderHierarchyToZip(folder);
     }
 }

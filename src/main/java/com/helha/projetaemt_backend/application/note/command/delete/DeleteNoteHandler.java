@@ -1,7 +1,9 @@
 package com.helha.projetaemt_backend.application.note.command.delete;
 
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class DeleteNoteHandler {
@@ -17,6 +19,9 @@ public class DeleteNoteHandler {
                     noteRepository.delete(n);
                     return n;
                 })
-                .orElseThrow(() -> new IllegalArgumentException("Note not found " + id));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Note not found"
+                ));
     }
 }

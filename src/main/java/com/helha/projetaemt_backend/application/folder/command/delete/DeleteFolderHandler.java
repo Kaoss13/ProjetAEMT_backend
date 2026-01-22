@@ -1,7 +1,9 @@
 package com.helha.projetaemt_backend.application.folder.command.delete;
 
 import com.helha.projetaemt_backend.infrastructure.dossier.IFolderRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class DeleteFolderHandler {
@@ -15,7 +17,8 @@ public class DeleteFolderHandler {
 
         var folder = folderRepository
                 .findById(folderId)
-                .orElseThrow(() -> new IllegalArgumentException("Folder not found" + folderId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Folder not found."));
         folderRepository.delete(folder);
     }
 }

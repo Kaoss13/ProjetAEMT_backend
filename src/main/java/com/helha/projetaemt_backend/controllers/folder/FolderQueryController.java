@@ -2,7 +2,6 @@ package com.helha.projetaemt_backend.controllers.folder;
 
 import com.helha.projetaemt_backend.application.folder.query.FolderQueryProcessor;
 import com.helha.projetaemt_backend.application.folder.query.getAll.GetAllFoldersWithNotesOutput;
-import com.helha.projetaemt_backend.controllers.folder.exceptions.UserNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -56,23 +55,46 @@ public class FolderQueryController {
     })
     @GetMapping("/all/{userId}")
     public ResponseEntity<GetAllFoldersWithNotesOutput> getAllFoldersWithNotes(@PathVariable int userId) {
-        try{
-            GetAllFoldersWithNotesOutput output = folderQueryProcessor
-                    .getAllFoldersWithNotesHandler
-                    .handle(userId);
+        GetAllFoldersWithNotesOutput output = folderQueryProcessor
+                .getAllFoldersWithNotesHandler
+                .handle(userId);
 
-            return ResponseEntity.ok(output);
-        }
-        catch (IllegalArgumentException e){
-            String msg = e.getMessage() == null ? "" : e.getMessage();
-
-            if (msg.contains("The user with this ID does not exist")) {
-                throw new UserNotFoundException(userId);
-            }
-            throw e;
-        }
+        return ResponseEntity.ok(output);
     }
 
+    @Operation(
+            summary = "Exporter un dossier en ZIP",
+            description = """
+            Génère une archive ZIP contenant le dossier,
+            ses sous-dossiers et les notes associées.
+            Le fichier est retourné en téléchargement.
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Archive ZIP générée avec succès",
+                    content = @Content(
+                            mediaType = "application/octet-stream"
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Folder not found",
+                    content = @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ProblemDetail.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Erreur lors de la génération du ZIP",
+                    content = @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ProblemDetail.class)
+                    )
+            )
+    })
     @GetMapping("/{id}/export-zip")
     public ResponseEntity<byte[]> exportFolderToZip(@PathVariable int id) throws Exception {
 

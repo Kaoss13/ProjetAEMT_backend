@@ -4,7 +4,9 @@ import com.helha.projetaemt_backend.domain.note.Note;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -31,7 +33,10 @@ public class UpdateNoteHandler {
                     n.updatedAt = LocalDateTime.now();
                     return noteRepository.save(n);
                 })
-                .orElseThrow(() -> new IllegalArgumentException("Note not found " + input.id));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Note not found"
+                ));
 
         // === Calcul des métadonnées à la volée ===
         Note noteDomain = new Note();

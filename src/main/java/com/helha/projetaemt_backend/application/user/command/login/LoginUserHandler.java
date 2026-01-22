@@ -1,12 +1,13 @@
 package com.helha.projetaemt_backend.application.user.command.login;
 
-import com.helha.projetaemt_backend.application.user.exceptions.InvalidCredentialsException;
 import com.helha.projetaemt_backend.application.utils.ICommandHandler;
 import com.helha.projetaemt_backend.infrastructure.user.DbUser;
 import com.helha.projetaemt_backend.infrastructure.user.IUserRepository;
 import com.helha.projetaemt_backend.infrastructure.utils.JwtService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class LoginUserHandler implements ICommandHandler<LoginUserInput, LoginUserOutput> {
@@ -24,10 +25,16 @@ public class LoginUserHandler implements ICommandHandler<LoginUserInput, LoginUs
     @Override
     public LoginUserOutput handle(LoginUserInput input) {
         DbUser dbUser = userRepository.findByUserName(input.userName)
-                .orElseThrow(InvalidCredentialsException::new);
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED,
+                        "Invalid credentials"
+                ));
 
         if (!passwordEncoder.matches(input.password, dbUser.hashPassword)) {
-            throw new InvalidCredentialsException();
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Invalid credentials"
+            );
         }
 
         LoginUserOutput output = new LoginUserOutput();
