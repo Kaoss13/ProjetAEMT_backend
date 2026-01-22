@@ -73,7 +73,6 @@ class UserControllerIT {
         @Test
         @DisplayName("400 - userName déjà existant")
         void register_shouldReturn400_whenUserExists() throws Exception {
-            // Créer un premier utilisateur
             CreateUserInput input1 = new CreateUserInput();
             input1.userName = "testuser";
             input1.password = "Test123!";
@@ -87,7 +86,6 @@ class UserControllerIT {
                     )
                     .andExpect(status().isCreated());
 
-            // Essayer de créer un deuxième utilisateur avec le même userName
             CreateUserInput input2 = new CreateUserInput();
             input2.userName = "testuser";
             input2.password = "AutrePassword123!";
@@ -185,7 +183,6 @@ class UserControllerIT {
                     )
                     .andExpect(status().isCreated());
 
-            // 2) Login avec les mêmes credentials
             LoginUserInput loginInput = new LoginUserInput();
             loginInput.userName = "testuser";
             loginInput.password = "Test123!";
@@ -223,7 +220,6 @@ class UserControllerIT {
         @Test
         @DisplayName("400 - Mot de passe incorrect")
         void login_shouldReturn400_whenPasswordWrong() throws Exception {
-            // 1) Créer un utilisateur
             CreateUserInput registerInput = new CreateUserInput();
             registerInput.userName = "testuser";
             registerInput.password = "Test123!";
@@ -237,7 +233,6 @@ class UserControllerIT {
                     )
                     .andExpect(status().isCreated());
 
-            // 2) Login avec mauvais mot de passe
             LoginUserInput loginInput = new LoginUserInput();
             loginInput.userName = "testuser";
             loginInput.password = "MauvaisPassword!";
@@ -316,7 +311,6 @@ class UserControllerIT {
             loginInput.userName = "nonexistent";
             loginInput.password = "wrong";
 
-            // Première tentative
             mockMvc.perform(
                             post("/users/login")
                                     .contentType(MediaType.APPLICATION_JSON)
@@ -324,7 +318,6 @@ class UserControllerIT {
                     )
                     .andExpect(status().isUnauthorized());
 
-            // Deuxième tentative
             mockMvc.perform(
                             post("/users/login")
                                     .contentType(MediaType.APPLICATION_JSON)
@@ -332,7 +325,6 @@ class UserControllerIT {
                     )
                     .andExpect(status().isUnauthorized());
 
-            // Troisième tentative
             mockMvc.perform(
                             post("/users/login")
                                     .contentType(MediaType.APPLICATION_JSON)

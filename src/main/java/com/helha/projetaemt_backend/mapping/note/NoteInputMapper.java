@@ -1,4 +1,4 @@
-package com.helha.projetaemt_backend;
+package com.helha.projetaemt_backend.mapping.note;
 
 import com.helha.projetaemt_backend.application.note.command.create.CreateNoteInput;
 import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
@@ -7,7 +7,6 @@ import com.helha.projetaemt_backend.infrastructure.user.DbUser;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Configuration;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 @Configuration

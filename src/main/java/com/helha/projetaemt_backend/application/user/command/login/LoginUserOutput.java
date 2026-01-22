@@ -4,5 +4,5 @@ public class LoginUserOutput {
 
     public Integer id;
     public String userName;
-    public String token;  // Token JWT pour l'authentification
+    public String token;  // Token JWT
 }

@@ -70,12 +70,6 @@ class NoteControllerIT {
         noteRepository.deleteAll();
     }
 
-    @Nested
-    @DisplayName("GET /notes/{id}")
-    class GetNoteById {
-        // Note: L'endpoint GET /notes/{id} n'a pas de @GetMapping dans le controller
-        // Donc ce test est désactivé car il retourne 405 Method Not Allowed
-    }
 
     @Nested
     @DisplayName("GET /notes/folder/{id}")
@@ -206,7 +200,6 @@ class NoteControllerIT {
                     .content("Ligne 1\nLigne 2\nLigne 3")
                     .build();
 
-            // Note: Jsoup.text() normalise les sauts de ligne, donc lineCount = 1
             mockMvc.perform(
                             post("/notes")
                                     .contentType(MediaType.APPLICATION_JSON)
@@ -261,7 +254,6 @@ class NoteControllerIT {
         @Test
         @DisplayName("204 - Note mise à jour")
         void updateNote_shouldReturnNoContent() throws Exception {
-            // 1) Créer une note et récupérer son id
             CreateNoteInput createInput = CreateNoteInput.builder()
                     .idUser(1).idFolder(1).title("TestTitle").content("TestContent")
                     .build();
@@ -280,7 +272,6 @@ class NoteControllerIT {
 
             int createdId = objectMapper.readTree(createResponse).get("id").asInt();
 
-            // 2) Mettre à jour la note créée (id obligatoire dans UpdateNoteInput)
             UpdateNoteInput updateInput = UpdateNoteInput.builder()
                     .id(createdId)
                     .title("Nouveau titre")
@@ -381,7 +372,6 @@ class NoteControllerIT {
         @Test
         @DisplayName("204 - Note supprimée")
         void deleteNote_shouldReturnNoContent() throws Exception {
-            // 1) Créer une note et récupérer son id
             CreateNoteInput input = CreateNoteInput.builder()
                     .idUser(1).idFolder(1).title("TestTitle").content("TestContent")
                     .build();
@@ -404,7 +394,6 @@ class NoteControllerIT {
             mockMvc.perform(delete("/notes/{id}", id))
                     .andExpect(status().isNoContent());
 
-            // 3) Vérifier via GET /notes/folders/{id} que la note n'est plus là
             mockMvc.perform(get("/notes/folders/{id}", 1))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.notes", hasSize(0)));

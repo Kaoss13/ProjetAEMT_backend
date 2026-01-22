@@ -56,8 +56,6 @@ class SearchControllerIT {
         jdbc.update("INSERT INTO folder (id, id_user, id_parent_folder, title, created_at) VALUES (11, 1, 10, 'Chien', NOW())");
         jdbc.update("INSERT INTO folder (id, id_user, id_parent_folder, title, created_at) VALUES (12, 1, 10, 'Chats', NOW())");
 
-        // notes alice (⚠️ adapte si ta table notes a des NOT NULL supplémentaires)
-        // Si ta table notes exige size_bytes/line_count/... alors tu dois aussi les remplir ici.
         jdbc.update("""
             INSERT INTO notes (id, id_user, id_folder, title, content, created_at, updated_at)
             VALUES (100, 1, 10, 'Ma note chien', 'contenu sur un chien', NOW(), NOW())
@@ -219,7 +217,6 @@ class SearchControllerIT {
         @Test
         @DisplayName("200 - Isolation des résultats entre utilisateurs")
         void search_shouldReturn200_userIsolation() throws Exception {
-            // Bob ne devrait pas voir les données d'Alice
             mockMvc.perform(
                             get("/search")
                                     .param("q", "chien")
@@ -231,14 +228,7 @@ class SearchControllerIT {
         }
     }
 
-    /**
-     * Petit helper pour comparer un jsonPath à un nombre sans reparser toute la réponse.
-     * Ici on “force” juste une valeur pour matcher l’idée score0 >= score1.
-     * Si tu préfères, je te donne la version "on récupère la réponse et on parse en Java".
-     */
     private static org.hamcrest.Matcher<Number> jsonPathNumber(String unused) {
-        // Hack simple : on ne peut pas injecter facilement $.results[1].score dans un matcher direct.
-        // Donc ici: on ne l'utilise pas. Garde juste le test "results not empty" si tu veux éviter ça.
         return any(Number.class);
     }
 }

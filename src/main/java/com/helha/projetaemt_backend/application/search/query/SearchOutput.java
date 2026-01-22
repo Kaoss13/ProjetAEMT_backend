@@ -3,34 +3,34 @@ package com.helha.projetaemt_backend.application.search.query;
 import java.util.ArrayList;
 import java.util.List;
 
-// Output de la recherche Quick Search
+// Output of Quick Search
 public class SearchOutput {
 
-    // Liste des résultats triés par pertinence
+    // List of results sorted by relevance
     public List<SearchResultItem> results = new ArrayList<>();
 
-    // Un résultat de recherche
+    // A search result item
     public static class SearchResultItem {
 
         // Type: FOLDER, NOTE, NOTE_CONTENT
         public String type;
 
-        // ID de l'élément
+        // Element ID
         public int id;
 
-        // ID du dossier parent (pour notes)
+        // Parent folder ID (for notes)
         public Integer folderId;
 
-        // Titre ou nom
+        // Title or name
         public String title;
 
-        // Extrait du contenu (pour NOTE_CONTENT)
+        // Content snippet (for NOTE_CONTENT)
         public String snippet;
 
-        // Ligne du match (pour NOTE_CONTENT)
+        // Matching line (for NOTE_CONTENT)
         public Integer line;
 
-        // Score de pertinence
+        // Relevance score
         public double score;
     }
 }

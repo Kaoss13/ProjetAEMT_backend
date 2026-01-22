@@ -1,5 +1,4 @@
-
-package com.helha.projetaemt_backend;
+package com.helha.projetaemt_backend.mapping.note;
 
 import com.helha.projetaemt_backend.domain.note.Note;
 import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
@@ -10,22 +9,40 @@ import org.springframework.context.annotation.Configuration;
 
 import java.lang.reflect.Field;
 
+/**
+ * Mapper responsible for converting between DbNote entities and DTOs or domain objects.
+ * It uses ModelMapper for standard mapping and adds custom logic for specific fields.
+ */
 @Configuration
 public class NoteMapper {
 
     private final ModelMapper modelMapper;
 
+    /**
+     * Constructor injecting ModelMapper.
+     *
+     * @param modelMapper The ModelMapper instance used for object mapping.
+     */
     public NoteMapper(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
     }
 
+    /**
+     * Maps a DbNote entity to a DTO of the specified type.
+     * Includes custom logic for user ID, folder ID, and computed metadata.
+     *
+     * @param entity       The DbNote entity to map.
+     * @param outputClass  The target DTO class.
+     * @param <T>          Generic type of the output class.
+     * @return Mapped DTO instance or null if entity is null.
+     */
     public <T> T map(DbNote entity, Class<T> outputClass) {
         if (entity == null) return null;
 
-        // 1) Mapping standard
+        // 1) Standard mapping using ModelMapper
         T dto = modelMapper.map(entity, outputClass);
 
-        // 2) idUser (association -> fallback champs primitifs)
+        // 2) Handle idUser (association -> fallback to primitive fields)
         Integer idUser = null;
         try {
             if (entity.user != null) {
@@ -43,7 +60,7 @@ public class NoteMapper {
             setIfExists(dto, "idUser", idUser);
         }
 
-        // 3) idFolder (association -> fallback champs primitifs)
+        // 3) Handle idFolder (association -> fallback to primitive fields)
         Integer idFolder = null;
         try {
             if (entity.folder != null) {
@@ -61,7 +78,7 @@ public class NoteMapper {
             setIfExists(dto, "idFolder", idFolder);
         }
 
-        // 4) Calcul des métadonnées à la volée via le domaine
+        // 4) Compute metadata dynamically using the domain object
         try {
             String content = entity.content != null ? entity.content : "";
             Note noteDomain = new Note();
@@ -72,23 +89,37 @@ public class NoteMapper {
             setIfExists(dto, "wordCount", noteDomain.computeWordCount());
             setIfExists(dto, "charCount", noteDomain.computeCharCount());
         } catch (Exception ignored) {
-            // Si le DTO n'a pas ces champs, on ignore
+            // If the DTO does not have these fields, ignore
         }
 
         return dto;
     }
 
+    /**
+     * Sets a field value on the DTO if the field exists and is accessible.
+     *
+     * @param dto       The target DTO object.
+     * @param fieldName The name of the field to set.
+     * @param value     The value to assign.
+     */
     private <T> void setIfExists(T dto, String fieldName, Object value) {
         try {
-            Field field = dto.getClass().getField(fieldName); // champ public
+            Field field = dto.getClass().getField(fieldName); // public field
             field.set(dto, value);
         } catch (NoSuchFieldException ignored) {
-            // DTO sans ce champ -> ignorer
+            // DTO does not have this field -> ignore
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
+    /**
+     * Reads an integer field from the source object if it exists.
+     *
+     * @param source    The source object.
+     * @param fieldName The name of the field to read.
+     * @return Integer value or null if not found.
+     */
     private Integer readIntFieldIfExists(Object source, String fieldName) {
         try {
             Field f = source.getClass().getDeclaredField(fieldName);
@@ -101,7 +132,14 @@ public class NoteMapper {
         return null;
     }
 
-
+    /**
+     * Converts a domain Note object to a DbNote entity.
+     *
+     * @param noteDomain The domain Note object.
+     * @param user       Associated user entity.
+     * @param folder     Associated folder entity.
+     * @return DbNote entity populated with data from the domain object.
+     */
     public DbNote toEntity(Note noteDomain, DbUser user, DbFolder folder) {
         DbNote entity = new DbNote();
         entity.user = user;
@@ -112,6 +150,4 @@ public class NoteMapper {
         entity.updatedAt = noteDomain.getUpdatedAt();
         return entity;
     }
-
 }
-

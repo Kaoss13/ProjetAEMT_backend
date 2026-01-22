@@ -169,13 +169,10 @@ class FolderAndNoteControllerIT {
         @Test
         @DisplayName("PUT /folders - 204 Renommage réussi")
         void folder_update_success() throws Exception {
-            // 1. On vérifie d'abord en DB quel est l'ID de Alice pour être sûr
             Integer aliceId = jdbc.queryForObject("SELECT id FROM users WHERE user_name = 'alice'", Integer.class);
-            // 2. On récupère l'ID du dossier 'Projets' qui appartient à Alice
             Integer folderId = jdbc.queryForObject("SELECT id FROM folder WHERE title = 'Projets' AND id_user = ?",
                     Integer.class, aliceId);
 
-            // 3. On construit le JSON avec les vrais IDs de la DB
             String body = String.format("""
         {
           "id": %d,
@@ -189,7 +186,6 @@ class FolderAndNoteControllerIT {
                             .content(body))
                     .andExpect(status().isNoContent());
 
-            // Optionnel : vérifier que le nom a bien changé en base
             String updatedTitle = jdbc.queryForObject("SELECT title FROM folder WHERE id = ?", String.class, folderId);
             assertThat(updatedTitle, is("NouveauNom"));
         }
@@ -330,7 +326,6 @@ class FolderAndNoteControllerIT {
             Integer folderId = jdbc.queryForObject("SELECT id FROM folder WHERE title = 'Projets' AND id_user = ?",
                     Integer.class, aliceId);
 
-            // Renommer "Projets" en "NouveauNomUnique"
             String body = String.format("""
                 {
                   "id": %d,
@@ -348,7 +343,6 @@ class FolderAndNoteControllerIT {
         @Test
         @DisplayName("DELETE /folders - Suppression dossier vide")
         void folder_delete_emptyFolder() throws Exception {
-            // Créer un dossier vide pour le test
             String body = """
                 {
                   "userId": 1,
@@ -368,11 +362,9 @@ class FolderAndNoteControllerIT {
 
             int folderId = objectMapper.readTree(response).get("id").asInt();
 
-            // Supprimer le dossier vide
             mockMvc.perform(delete("/folders/{id}", folderId))
                     .andExpect(status().isNoContent());
 
-            // Vérifier que le dossier n'existe plus
             mockMvc.perform(delete("/folders/{id}", folderId))
                     .andExpect(status().isNotFound());
         }
@@ -463,7 +455,6 @@ class FolderAndNoteControllerIT {
         @Test
         @DisplayName("GET /folders/{id}/export-zip - 200 ZIP contient les notes")
         void folder_exportZip_withNotes() throws Exception {
-            // Créer des notes
             String noteBody1 = """
                 {
                   "userId": 1,
@@ -500,7 +491,7 @@ class FolderAndNoteControllerIT {
                     .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
                     .andExpect(result -> {
                         byte[] zipBytes = result.getResponse().getContentAsByteArray();
-                        assertThat(zipBytes.length, greaterThan(100)); // ZIP non vide
+                        assertThat(zipBytes.length, greaterThan(100));
                     });
         }
     }
@@ -615,8 +606,6 @@ class FolderAndNoteControllerIT {
 
             mockMvc.perform(get("/notes/folders/{idFolder}", 11))
                     .andExpect(status().isOk());
-            // On ne force pas la structure exacte (GetByIdFolderNoteOutput),
-            // mais si tu me donnes la classe output je te fais les jsonPath précis.
         }
 
         @Test

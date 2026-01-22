@@ -1,15 +1,14 @@
 package com.helha.projetaemt_backend.application.search.query;
 
-// Input pour la recherche Quick Search
+// Input for Quick Search
 public class SearchInput {
 
-    // Texte recherché (fuzzy)
-
+    // Searched text (fuzzy)
     public String query;
 
-    // ID utilisateur
+    // User ID
     public int userId;
 
-    // Limite de résultats
+    // Result limit
     public int limit = 20;
 }

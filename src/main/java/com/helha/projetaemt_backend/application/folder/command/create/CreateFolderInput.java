@@ -8,5 +8,5 @@ public class CreateFolderInput {
     @NotBlank
     @Size(max = 255)
     public String title;
-    public Integer parentFolderId; //Integer car cet attribut peut-être null
+    public Integer parentFolderId; // Integer because this attribute can be null
 }

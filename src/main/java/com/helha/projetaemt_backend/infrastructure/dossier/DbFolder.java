@@ -21,7 +21,7 @@ public class DbFolder {
     @JoinColumn(name = "id_user", nullable = false)
     public DbUser user;
 
-    // Relation récursive : dossier parent
+    // Recursive relationship: parent folder
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_parent_folder")
     public DbFolder parentFolder;

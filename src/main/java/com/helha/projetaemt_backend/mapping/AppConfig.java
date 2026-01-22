@@ -12,7 +12,6 @@ public class AppConfig {
     public ModelMapper modelMapper(EntityManager em) {
         ModelMapper modelMapper = new ModelMapper();
 
-        // Autoriser lecture/écriture sur CHAMPS PUBLICS + ignorer les nulls
         modelMapper.getConfiguration()
                 .setFieldMatchingEnabled(true)
                 .setSkipNullEnabled(true);

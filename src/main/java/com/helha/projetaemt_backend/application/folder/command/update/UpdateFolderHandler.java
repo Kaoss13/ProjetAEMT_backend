@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-
 @Service
 public class UpdateFolderHandler implements IEffectCommandHandler<UpdateFolderInput> {
     private final IFolderRepository folderRepository;

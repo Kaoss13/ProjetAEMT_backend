@@ -1,6 +1,6 @@
 package com.helha.projetaemt_backend.application.note.command.create;
 
-import com.helha.projetaemt_backend.NoteMapper;
+import com.helha.projetaemt_backend.mapping.note.NoteMapper;
 import com.helha.projetaemt_backend.domain.note.Note;
 import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
 import com.helha.projetaemt_backend.infrastructure.dossier.IFolderRepository;
