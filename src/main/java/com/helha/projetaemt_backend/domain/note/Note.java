@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jsoup.Jsoup;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -32,18 +33,23 @@ public class Note {
         this.content = content;
     }
 
+
+    private String getPlainText() {
+        return content != null ? Jsoup.parse(content).text() : "";
+    }
+
     public int computeSizeBytes(){
-        return this.content.getBytes(StandardCharsets.UTF_8).length;
+        return getPlainText().getBytes(StandardCharsets.UTF_8).length;
     }
     public int computeLineCount(){
-        return this.content.split("\r\n|\r|\n").length;
+        return getPlainText().isEmpty() ? 0 : getPlainText().split("\r\n|\r|\n").length;
     }
     public int computeWordCount(){
-        return this.content.trim().isEmpty()
-                ? 0
-                : this.content.trim().split("\\s+").length;
+        String plainText = getPlainText().trim();
+        return plainText.isEmpty() ? 0 : plainText.split("\\s+").length;
+
     }
     public int computeCharCount(){
-        return this.content.length();
+        return getPlainText().length();
     }
 }
