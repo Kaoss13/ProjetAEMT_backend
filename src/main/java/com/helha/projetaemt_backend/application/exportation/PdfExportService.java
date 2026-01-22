@@ -3,11 +3,9 @@ package com.helha.projetaemt_backend.application.exportation;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
 import com.helha.projetaemt_backend.domain.note.Note;
-import com.lowagie.text.Anchor;
-import com.lowagie.text.Chunk;
-import com.lowagie.text.Document;
-import com.lowagie.text.Font;
-import com.lowagie.text.Paragraph;
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -21,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.List;
 
 /**
  * Service responsible for exporting notes to a PDF document.
@@ -108,10 +107,8 @@ public class PdfExportService {
             doc.add(new Paragraph("Character count: " + noteDomain.computeCharCount(), metaFont));
             doc.add(new Paragraph(" "));
 
-            // Add note content with internal/external links
-            Paragraph paragraph = new Paragraph();
-            appendContentWithLinks(dbNote, allNotes, appBaseUrl, paragraph, linkFont);
-            doc.add(paragraph);
+            // Add note content with formatting (bold, italic, tables, etc.)
+            appendContentToDocument(doc, dbNote, allNotes, appBaseUrl, linkFont);
             doc.add(new Paragraph(" "));
         }
 
@@ -169,32 +166,165 @@ public class PdfExportService {
     }
 
     /**
-     * Appends note content to the PDF paragraph, converting mentions into clickable links.
-     *
-     * @param note       Current note being processed.
-     * @param allNotes   Map of all notes included in the PDF.
-     * @param appBaseUrl Base URL for external links.
-     * @param paragraph  Paragraph to append content to.
-     * @param linkFont   Font used for links.
+     * Appends note content to the PDF document, converting HTML to formatted PDF elements.
+     * Handles tables separately since they need to be added directly to the document.
      */
-    private void appendContentWithLinks(DbNote note, Map<Integer, DbNote> allNotes, String appBaseUrl,
-                                        Paragraph paragraph, Font linkFont) {
+    private void appendContentToDocument(Document doc, DbNote note, Map<Integer, DbNote> allNotes,
+                                         String appBaseUrl, Font linkFont) throws DocumentException {
         String content = note.content != null ? note.content : "";
         org.jsoup.nodes.Document htmlDoc = Jsoup.parse(content);
-        Elements paragraphs = htmlDoc.body().select("p");
 
-        for (Element p : paragraphs) {
-            Paragraph subParagraph = new Paragraph();
-            for (Node node : p.childNodes()) {
-                if (node instanceof TextNode) {
-                    // Add plain text
-                    subParagraph.add(new Chunk(((TextNode) node).text() + " "));
-                } else if (node instanceof Element) {
-                    Element child = (Element) node;
+        Paragraph currentParagraph = new Paragraph();
+
+        // Process all child elements of body
+        for (Node node : htmlDoc.body().childNodes()) {
+            if (node instanceof Element && ((Element) node).tagName().equalsIgnoreCase("table")) {
+                // Add current paragraph before table
+                if (!currentParagraph.isEmpty()) {
+                    doc.add(currentParagraph);
+                    currentParagraph = new Paragraph();
+                }
+                // Add table directly to document
+                PdfPTable table = createPdfTable((Element) node);
+                if (table != null) {
+                    doc.add(table);
+                }
+            } else {
+                processNode(node, currentParagraph, allNotes, appBaseUrl, linkFont, Font.NORMAL);
+            }
+        }
+
+        // Add remaining paragraph
+        if (!currentParagraph.isEmpty()) {
+            doc.add(currentParagraph);
+        }
+    }
+
+    /**
+     * Recursively processes HTML nodes and converts them to PDF elements.
+     */
+    private void processNode(Node node, Paragraph paragraph, Map<Integer, DbNote> allNotes,
+                            String appBaseUrl, Font linkFont, int fontStyle) {
+        if (node instanceof TextNode) {
+            String text = ((TextNode) node).text();
+            if (!text.trim().isEmpty()) {
+                Font font = new Font(Font.HELVETICA, 12, fontStyle);
+                paragraph.add(new Chunk(text, font));
+            }
+        } else if (node instanceof Element) {
+            Element el = (Element) node;
+            String tag = el.tagName().toLowerCase();
+
+            switch (tag) {
+                case "strong":
+                case "b":
+                    // Bold text
+                    for (Node child : el.childNodes()) {
+                        processNode(child, paragraph, allNotes, appBaseUrl, linkFont, fontStyle | Font.BOLD);
+                    }
+                    break;
+
+                case "em":
+                case "i":
+                    // Italic text
+                    for (Node child : el.childNodes()) {
+                        processNode(child, paragraph, allNotes, appBaseUrl, linkFont, fontStyle | Font.ITALIC);
+                    }
+                    break;
+
+                case "u":
+                    // Underline text
+                    for (Node child : el.childNodes()) {
+                        processNode(child, paragraph, allNotes, appBaseUrl, linkFont, fontStyle | Font.UNDERLINE);
+                    }
+                    break;
+
+                case "s":
+                case "strike":
+                case "del":
+                    // Strikethrough text
+                    for (Node child : el.childNodes()) {
+                        processNode(child, paragraph, allNotes, appBaseUrl, linkFont, fontStyle | Font.STRIKETHRU);
+                    }
+                    break;
+
+                case "h1":
+                    paragraph.add(Chunk.NEWLINE);
+                    Font h1Font = new Font(Font.HELVETICA, 20, Font.BOLD);
+                    paragraph.add(new Chunk(el.text(), h1Font));
+                    paragraph.add(Chunk.NEWLINE);
+                    break;
+
+                case "h2":
+                    paragraph.add(Chunk.NEWLINE);
+                    Font h2Font = new Font(Font.HELVETICA, 16, Font.BOLD);
+                    paragraph.add(new Chunk(el.text(), h2Font));
+                    paragraph.add(Chunk.NEWLINE);
+                    break;
+
+                case "h3":
+                    paragraph.add(Chunk.NEWLINE);
+                    Font h3Font = new Font(Font.HELVETICA, 14, Font.BOLD);
+                    paragraph.add(new Chunk(el.text(), h3Font));
+                    paragraph.add(Chunk.NEWLINE);
+                    break;
+
+                case "p":
+                    for (Node child : el.childNodes()) {
+                        processNode(child, paragraph, allNotes, appBaseUrl, linkFont, fontStyle);
+                    }
+                    paragraph.add(Chunk.NEWLINE);
+                    break;
+
+                case "br":
+                    paragraph.add(Chunk.NEWLINE);
+                    break;
+
+                case "ul":
+                    paragraph.add(Chunk.NEWLINE);
+                    for (Element li : el.select("> li")) {
+                        paragraph.add(new Chunk("  • " + li.text()));
+                        paragraph.add(Chunk.NEWLINE);
+                    }
+                    break;
+
+                case "ol":
+                    paragraph.add(Chunk.NEWLINE);
+                    int index = 1;
+                    for (Element li : el.select("> li")) {
+                        paragraph.add(new Chunk("  " + index + ". " + li.text()));
+                        paragraph.add(Chunk.NEWLINE);
+                        index++;
+                    }
+                    break;
+
+                case "blockquote":
+                    paragraph.add(Chunk.NEWLINE);
+                    Font quoteFont = new Font(Font.HELVETICA, 12, Font.ITALIC, Color.DARK_GRAY);
+                    paragraph.add(new Chunk("    \"" + el.text() + "\"", quoteFont));
+                    paragraph.add(Chunk.NEWLINE);
+                    break;
+
+                case "code":
+                    Font codeFont = new Font(Font.COURIER, 11, fontStyle, Color.DARK_GRAY);
+                    paragraph.add(new Chunk(el.text(), codeFont));
+                    break;
+
+                case "pre":
+                    paragraph.add(Chunk.NEWLINE);
+                    Font preFont = new Font(Font.COURIER, 10, Font.NORMAL, Color.DARK_GRAY);
+                    paragraph.add(new Chunk(el.text(), preFont));
+                    paragraph.add(Chunk.NEWLINE);
+                    break;
+
+                case "span":
                     // Handle note mentions
-                    if (child.tagName().equals("span") && child.hasClass("note-mention")) {
-                        String label = child.attr("data-label");
-                        String noteIdStr = child.attr("data-id");
+                    if (el.hasClass("note-mention")) {
+                        String label = el.attr("data-label");
+                        String noteIdStr = el.attr("data-note-id");
+                        if (noteIdStr.isEmpty()) {
+                            noteIdStr = el.attr("data-id");
+                        }
                         try {
                             int noteId = Integer.parseInt(noteIdStr);
                             Anchor link = new Anchor("@" + label, linkFont);
@@ -203,14 +333,74 @@ public class PdfExportService {
                             } else {
                                 link.setReference(appBaseUrl + "/note/" + noteId);
                             }
-                            subParagraph.add(link);
+                            paragraph.add(link);
                         } catch (NumberFormatException e) {
-                            subParagraph.add(new Chunk("@" + label + " (Invalid ID) "));
+                            paragraph.add(new Chunk("@" + label));
+                        }
+                    } else {
+                        for (Node child : el.childNodes()) {
+                            processNode(child, paragraph, allNotes, appBaseUrl, linkFont, fontStyle);
                         }
                     }
-                }
+                    break;
+
+                case "a":
+                    String href = el.attr("href");
+                    Anchor anchor = new Anchor(el.text(), linkFont);
+                    anchor.setReference(href);
+                    paragraph.add(anchor);
+                    break;
+
+                case "hr":
+                    paragraph.add(Chunk.NEWLINE);
+                    paragraph.add(new Chunk("─────────────────────────────────"));
+                    paragraph.add(Chunk.NEWLINE);
+                    break;
+
+                default:
+                    // For other elements, process children
+                    for (Node child : el.childNodes()) {
+                        processNode(child, paragraph, allNotes, appBaseUrl, linkFont, fontStyle);
+                    }
             }
-            paragraph.add(subParagraph);
         }
+    }
+
+    /**
+     * Creates a PDF table from an HTML table element.
+     */
+    private PdfPTable createPdfTable(Element tableEl) throws DocumentException {
+        Elements rows = tableEl.select("tr");
+        if (rows.isEmpty()) return null;
+
+        // Determine number of columns from first row
+        Element firstRow = rows.first();
+        int numCols = firstRow.select("th, td").size();
+        if (numCols == 0) return null;
+
+        PdfPTable table = new PdfPTable(numCols);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10);
+        table.setSpacingAfter(10);
+
+        Font headerFont = new Font(Font.HELVETICA, 11, Font.BOLD);
+        Font cellFont = new Font(Font.HELVETICA, 11, Font.NORMAL);
+
+        for (Element row : rows) {
+            Elements cells = row.select("th, td");
+            for (Element cell : cells) {
+                boolean isHeader = cell.tagName().equals("th");
+                Font font = isHeader ? headerFont : cellFont;
+
+                PdfPCell pdfCell = new PdfPCell(new Phrase(cell.text(), font));
+                pdfCell.setPadding(5);
+                if (isHeader) {
+                    pdfCell.setBackgroundColor(new Color(240, 240, 240));
+                }
+                table.addCell(pdfCell);
+            }
+        }
+
+        return table;
     }
 }
