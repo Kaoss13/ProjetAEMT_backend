@@ -102,7 +102,7 @@ class SearchControllerIT {
                     .andExpect(status().isNotFound())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.valueOf("application/problem+json")))
                     .andExpect(jsonPath("$.status").value(404))
-                    .andExpect(jsonPath("$.detail", containsString("User not found")));
+                    .andExpect(jsonPath("$.detail", containsString("L'utilisateur introuvable")));
         }
 
         @Test

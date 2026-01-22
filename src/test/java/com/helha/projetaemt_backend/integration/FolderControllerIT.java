@@ -144,7 +144,7 @@ class FolderAndNoteControllerIT {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(body))
                     .andExpect(status().isBadRequest())
-                    .andExpect(content().string(containsString("Parent folder does not belong")));
+                    .andExpect(content().string(containsString("Le dossier parent n'appartient pas à cet utilisateur.")));
         }
 
         @Test

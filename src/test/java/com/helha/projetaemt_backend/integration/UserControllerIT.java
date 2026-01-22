@@ -142,7 +142,7 @@ class UserControllerIT {
         void register_shouldReturn409_whenUserExistsCaseInsensitive() throws Exception {
             CreateUserInput input1 = new CreateUserInput();
             input1.userName = "TestUser";
-            input1.password = "Test123!";
+            input1.password = "Test123!Test123!";
 
             mockMvc.perform(
                             post("/users")
@@ -153,7 +153,7 @@ class UserControllerIT {
 
             CreateUserInput input2 = new CreateUserInput();
             input2.userName = "testuser";
-            input2.password = "AutrePassword!";
+            input2.password = "AutrePassword12!";
 
             mockMvc.perform(
                             post("/users")
@@ -257,7 +257,7 @@ class UserControllerIT {
         void login_shouldReturn200_withSpecialChars() throws Exception {
             CreateUserInput registerInput = new CreateUserInput();
             registerInput.userName = "user_special";
-            registerInput.password = "P@ss!#$%";
+            registerInput.password = "P@ssssss!#$%1";
 
             mockMvc.perform(
                             post("/users")
@@ -268,7 +268,7 @@ class UserControllerIT {
 
             LoginUserInput loginInput = new LoginUserInput();
             loginInput.userName = "user_special";
-            loginInput.password = "P@ss!#$%";
+            loginInput.password = "P@ssssss!#$%1";
 
             mockMvc.perform(
                             post("/users/login")
