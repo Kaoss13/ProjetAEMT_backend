@@ -1,5 +1,6 @@
 package com.helha.projetaemt_backend.application.exportation;
 
+import com.helha.projetaemt_backend.domain.note.Note;
 import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
 import com.helha.projetaemt_backend.infrastructure.dossier.IFolderRepository;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
@@ -88,9 +89,25 @@ public class ZipExportService {
         for (DbNote note : notes) {
             String fileName = note.title.replaceAll("\\s+", "_") + ".md";
             String markdownContent = convertHtmlToMarkdown(note.content);
+
+            // Compute metadata using Note domain
+            Note noteDomain = new Note();
+            noteDomain.setContent(note.content != null ? note.content : "");
+
+            String author = note.user != null ? note.user.userName : "Inconnu";
+            String folderName = note.folder != null ? note.folder.title : "Racine";
+
             String content = "# " + note.title + "\n\n" +
-                    "Created on: " + note.createdAt + "\n" +
-                    "Last updated: " + note.updatedAt + "\n\n" +
+                    "---\n" +
+                    "**Auteur:** " + author + "\n" +
+                    "**Dossier:** " + folderName + "\n" +
+                    "**Créé le:** " + note.createdAt + "\n" +
+                    "**Modifié le:** " + note.updatedAt + "\n" +
+                    "**Taille:** " + noteDomain.computeSizeBytes() + " octets\n" +
+                    "**Lignes:** " + noteDomain.computeLineCount() + "\n" +
+                    "**Mots:** " + noteDomain.computeWordCount() + "\n" +
+                    "**Caractères:** " + noteDomain.computeCharCount() + "\n" +
+                    "---\n\n" +
                     markdownContent;
 
             zipOut.putNextEntry(new ZipEntry(path + "/" + fileName));
