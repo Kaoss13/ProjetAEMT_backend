@@ -33,7 +33,7 @@ public class GetAllFoldersWithNotesHandler {
         if (!userRepository.existsById(userId)) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "User not found"
+                    "Utilisateur introuvable"
             );
         }
 

@@ -28,7 +28,7 @@ public class GetByIdFolderNoteHandler {
         if (!folderRepository.existsById(id)) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "Folder not found"
+                    "Note introuvable"
             );
         }
 

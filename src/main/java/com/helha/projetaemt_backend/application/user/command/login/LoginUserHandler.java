@@ -27,13 +27,13 @@ public class LoginUserHandler implements ICommandHandler<LoginUserInput, LoginUs
         DbUser dbUser = userRepository.findByUserName(input.userName)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.UNAUTHORIZED,
-                        "Invalid credentials"
+                        "Identifiants invalides"
                 ));
 
         if (!passwordEncoder.matches(input.password, dbUser.hashPassword)) {
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
-                    "Invalid credentials"
+                    "Identifiants invalides"
             );
         }
 

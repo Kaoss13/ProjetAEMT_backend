@@ -21,7 +21,7 @@ public class DeleteNoteHandler {
                 })
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Note not found"
+                        "Note introuvable"
                 ));
     }
 }

@@ -36,7 +36,7 @@ public class CreateFolderHandler implements ICommandHandler<CreateFolderInput, C
         DbUser user = userRepository.findById(input.userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "User not found"
+                        "User introuvable"
                 ));
 
 
@@ -44,17 +44,17 @@ public class CreateFolderHandler implements ICommandHandler<CreateFolderInput, C
         if (input.parentFolderId == null || input.parentFolderId == 0) {
             parentFolder = folderRepository.findByUser_IdAndParentFolderIsNull(input.userId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                            "Root folder not found for this user."
+                            "Dossier racine introuvable pour cet utilisateur."
                     ));
         }
         else {
             parentFolder = folderRepository.findById(input.parentFolderId)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parent folder not found"
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dossier parent introuvable"
                     ));
 
             if (parentFolder.user.id != input.userId) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Parent folder does not belong to this user."
+                        "Le dossier parent n'appartient pas à cet utilisateur."
                 );
             }
         }
@@ -70,7 +70,7 @@ public class CreateFolderHandler implements ICommandHandler<CreateFolderInput, C
         if (alreadyExists) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    "Folder already exists"
+                    "Le dossier existe déjà"
             );
         }
 

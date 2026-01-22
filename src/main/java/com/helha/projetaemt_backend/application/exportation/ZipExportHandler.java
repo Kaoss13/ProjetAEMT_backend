@@ -26,7 +26,7 @@ public class ZipExportHandler {
         DbFolder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Folder not found"
+                        "Folder introuvable"
                 ));
         return zipExportService.exportFolderHierarchyToZip(folder);
     }

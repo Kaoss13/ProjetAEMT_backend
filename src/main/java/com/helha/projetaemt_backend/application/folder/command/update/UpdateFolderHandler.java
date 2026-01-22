@@ -26,7 +26,7 @@ public class UpdateFolderHandler implements IEffectCommandHandler<UpdateFolderIn
                     if (f.getUser() == null || f.getUser().getId() != input.userId) {
                         throw new ResponseStatusException(
                                 HttpStatus.BAD_REQUEST,
-                                "Folder does not belong to this user"
+                                "Ce dossier n'appartient pas à cet utilisateur"
                         );
                     }
                     //Ici pas besoin de toLowerCase() car equalsIgnoreCase le fait déjà
@@ -53,7 +53,7 @@ public class UpdateFolderHandler implements IEffectCommandHandler<UpdateFolderIn
                     if (exists) {
                         throw new ResponseStatusException(
                                 HttpStatus.CONFLICT,
-                                "Folder already exists"
+                                "Le dossier existe déjà"
                         );
                     }
 
@@ -61,7 +61,7 @@ public class UpdateFolderHandler implements IEffectCommandHandler<UpdateFolderIn
                     return folderRepository.save(f);
                 }).orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Folder not found"
+                        "Dossier introuvable"
                 ));
     }
 }

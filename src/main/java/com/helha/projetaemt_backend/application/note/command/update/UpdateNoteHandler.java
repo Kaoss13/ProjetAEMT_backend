@@ -35,7 +35,7 @@ public class UpdateNoteHandler {
                 })
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Note not found"
+                        "Note introuvable"
                 ));
 
         // === Calcul des métadonnées à la volée ===

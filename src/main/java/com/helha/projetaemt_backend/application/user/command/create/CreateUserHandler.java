@@ -33,7 +33,7 @@ public class CreateUserHandler implements ICommandHandler<CreateUserInput, Creat
         if (userRepository.existsByUserName(input.userName)) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    "User already exists"
+                    "L'utilisateur existe déjà"
             );
         }
 

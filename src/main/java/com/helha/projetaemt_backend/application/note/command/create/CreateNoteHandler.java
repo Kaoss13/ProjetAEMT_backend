@@ -35,7 +35,7 @@ public class CreateNoteHandler {
         DbUser user = userRepository.findById(input.idUser)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "User not found"
+                        "Utilisateur introuvable"
                 ));
 
         DbFolder folder;
@@ -43,13 +43,13 @@ public class CreateNoteHandler {
             folder = folderRepository.findById(input.idFolder)
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND,
-                            "Folder not found"
+                            "Dossier introuvable"
                     ));
         } else {
             folder = folderRepository.findByUser_IdAndParentFolderIsNull(input.idUser)
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND,
-                            "Root folder not found"
+                            "Dossier racine introuvable"
                     ));
         }
 

@@ -18,7 +18,7 @@ public class DeleteFolderHandler {
         var folder = folderRepository
                 .findById(folderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Folder not found."));
+                        "Dossier introuvable."));
         folderRepository.delete(folder);
     }
 }

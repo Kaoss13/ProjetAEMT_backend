@@ -28,7 +28,7 @@ public class PdfExportHandler {
         DbNote mainNote = noteRepository.findById(noteId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Note not found"
+                        "Note introuvable"
                 ));
 
         org.jsoup.nodes.Document htmlDoc = Jsoup.parse(mainNote.content);

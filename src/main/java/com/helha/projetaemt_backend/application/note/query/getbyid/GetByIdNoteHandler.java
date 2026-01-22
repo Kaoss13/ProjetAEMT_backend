@@ -22,7 +22,7 @@ public class GetByIdNoteHandler {
         DbNote entity = noteRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Note not found"
+                        "Note introuvable"
                 ));
 
         return noteMapper.map(entity, GetByIdNoteOutput.class);

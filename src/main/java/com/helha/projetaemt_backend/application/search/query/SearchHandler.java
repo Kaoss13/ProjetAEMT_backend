@@ -34,7 +34,7 @@ public class SearchHandler implements IQueryHandler<SearchInput, SearchOutput> {
         if (!userRepository.existsById(input.userId)) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
-                    "User not found"
+                    "L'utilisateur introuvable"
             );
         }
 
