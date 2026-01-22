@@ -1,6 +1,5 @@
 package com.helha.projetaemt_backend.application.exportation;
 
-import com.helha.projetaemt_backend.application.note.exceptions.NoteNotFoundException;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
 import org.jsoup.Jsoup;

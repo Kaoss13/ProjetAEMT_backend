@@ -1,6 +1,5 @@
 package com.helha.projetaemt_backend.controllers.note;
 
-import com.helha.projetaemt_backend.application.note.exceptions.NoteNotFoundException;
 import com.helha.projetaemt_backend.application.note.query.NoteQueryProcessor;
 import com.helha.projetaemt_backend.application.note.query.getbyid.GetByIdNoteOutput;
 import com.helha.projetaemt_backend.application.note.query.getbyidfolder.GetByIdFolderNoteOutput;
@@ -46,7 +45,7 @@ public class NoteQueryController {
         return ResponseEntity.ok(noteQueryProcessor.getByIdNoteHandler.handle(idNote));
     }
 
-    @@Operation(
+    @Operation(
             summary = "Récupérer les notes d'un dossier",
             description = """
         Retourne la liste des notes d'un dossier.
