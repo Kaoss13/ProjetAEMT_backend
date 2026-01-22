@@ -22,7 +22,7 @@ public class CorsConfig implements WebMvcConfigurer {
 
         final CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+        config.setAllowedOrigins(asList("http://localhost:5173", "http://localhost:5174"));
 
         config.setAllowedHeaders(asList("Origin", "Content-Type", "Accept"));
 
