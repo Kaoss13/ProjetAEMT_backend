@@ -23,6 +23,7 @@ public class DbNote {
     public DbFolder folder;
 
     public String title;
+    @Column (columnDefinition = "mediumtext")
     public String content;
     @Column(name = "created_at")
     public LocalDateTime createdAt;
