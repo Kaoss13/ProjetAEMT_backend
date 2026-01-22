@@ -149,6 +149,86 @@ class SearchControllerIT {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.results", hasSize(lessThanOrEqualTo(2))));
         }
+
+        @Test
+        @DisplayName("200 - Recherche dans les titres de dossiers")
+        void search_shouldReturn200_findFolders() throws Exception {
+            mockMvc.perform(
+                            get("/search")
+                                    .param("q", "Chien")
+                                    .param("userId", "1")
+                                    .param("limit", "20")
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.results", is(not(empty()))))
+                    .andExpect(jsonPath("$.results[?(@.type == 'FOLDER')]").exists());
+        }
+
+        @Test
+        @DisplayName("200 - Recherche dans le contenu des notes")
+        void search_shouldReturn200_searchInContent() throws Exception {
+            mockMvc.perform(
+                            get("/search")
+                                    .param("q", "contenu")
+                                    .param("userId", "1")
+                                    .param("limit", "20")
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.results", is(not(empty()))));
+        }
+
+        @Test
+        @DisplayName("200 - Recherche case-insensitive")
+        void search_shouldReturn200_caseInsensitive() throws Exception {
+            mockMvc.perform(
+                            get("/search")
+                                    .param("q", "CHIEN")
+                                    .param("userId", "1")
+                                    .param("limit", "20")
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.results", is(not(empty()))));
+        }
+
+        @Test
+        @DisplayName("200 - Recherche avec caractères spéciaux")
+        void search_shouldReturn200_withSpecialChars() throws Exception {
+            mockMvc.perform(
+                            get("/search")
+                                    .param("q", "été")
+                                    .param("userId", "1")
+                                    .param("limit", "20")
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.results").isArray());
+        }
+
+        @Test
+        @DisplayName("200 - Recherche avec limit 0 retourne vide")
+        void search_shouldReturn200_limitZero() throws Exception {
+            mockMvc.perform(
+                            get("/search")
+                                    .param("q", "chien")
+                                    .param("userId", "1")
+                                    .param("limit", "0")
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.results", hasSize(0)));
+        }
+
+        @Test
+        @DisplayName("200 - Isolation des résultats entre utilisateurs")
+        void search_shouldReturn200_userIsolation() throws Exception {
+            // Bob ne devrait pas voir les données d'Alice
+            mockMvc.perform(
+                            get("/search")
+                                    .param("q", "chien")
+                                    .param("userId", "2")
+                                    .param("limit", "20")
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.results", is(empty())));
+        }
     }
 
     /**
