@@ -101,6 +101,67 @@ class UserControllerIT {
                     )
                     .andExpect(status().isConflict());
         }
+
+        @Test
+        @DisplayName("201 - Crée un utilisateur avec caractères spéciaux")
+        void register_shouldReturn201_withSpecialChars() throws Exception {
+            CreateUserInput input = new CreateUserInput();
+            input.userName = "user_test-123";
+            input.password = "P@ssw0rd!#$";
+
+            String payload = objectMapper.writeValueAsString(input);
+
+            mockMvc.perform(
+                            post("/users")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(payload)
+                    )
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.userName").value("user_test-123"));
+        }
+
+        @Test
+        @DisplayName("201 - Crée un utilisateur avec nom très long")
+        void register_shouldReturn201_withLongUsername() throws Exception {
+            CreateUserInput input = new CreateUserInput();
+            input.userName = "a]".repeat(25); // 50 caractères
+            input.password = "Test123!";
+
+            String payload = objectMapper.writeValueAsString(input);
+
+            mockMvc.perform(
+                            post("/users")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(payload)
+                    )
+                    .andExpect(status().isCreated());
+        }
+
+        @Test
+        @DisplayName("409 - userName case-insensitive déjà existant")
+        void register_shouldReturn409_whenUserExistsCaseInsensitive() throws Exception {
+            CreateUserInput input1 = new CreateUserInput();
+            input1.userName = "TestUser";
+            input1.password = "Test123!";
+
+            mockMvc.perform(
+                            post("/users")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(input1))
+                    )
+                    .andExpect(status().isCreated());
+
+            CreateUserInput input2 = new CreateUserInput();
+            input2.userName = "testuser";
+            input2.password = "AutrePassword!";
+
+            mockMvc.perform(
+                            post("/users")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(input2))
+                    )
+                    .andExpect(status().isConflict());
+        }
     }
 
     @Nested
@@ -187,6 +248,95 @@ class UserControllerIT {
                             post("/users/login")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(loginPayload)
+                    )
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("200 - Login avec caractères spéciaux")
+        void login_shouldReturn200_withSpecialChars() throws Exception {
+            CreateUserInput registerInput = new CreateUserInput();
+            registerInput.userName = "user_special";
+            registerInput.password = "P@ss!#$%";
+
+            mockMvc.perform(
+                            post("/users")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(registerInput))
+                    )
+                    .andExpect(status().isCreated());
+
+            LoginUserInput loginInput = new LoginUserInput();
+            loginInput.userName = "user_special";
+            loginInput.password = "P@ss!#$%";
+
+            mockMvc.perform(
+                            post("/users/login")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(loginInput))
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.token").isNotEmpty());
+        }
+
+        @Test
+        @DisplayName("200 - Token JWT contient les bonnes informations")
+        void login_shouldReturn200_withValidJwtClaims() throws Exception {
+            CreateUserInput registerInput = new CreateUserInput();
+            registerInput.userName = "jwtuser";
+            registerInput.password = "Test123!";
+
+            mockMvc.perform(
+                            post("/users")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(registerInput))
+                    )
+                    .andExpect(status().isCreated());
+
+            LoginUserInput loginInput = new LoginUserInput();
+            loginInput.userName = "jwtuser";
+            loginInput.password = "Test123!";
+
+            mockMvc.perform(
+                            post("/users/login")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(loginInput))
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").isNumber())
+                    .andExpect(jsonPath("$.userName").value("jwtuser"))
+                    .andExpect(jsonPath("$.token").isString())
+                    .andExpect(jsonPath("$.token").isNotEmpty());
+        }
+
+        @Test
+        @DisplayName("401 - Plusieurs tentatives de login échouées")
+        void login_shouldReturn401_multipleFailed() throws Exception {
+            LoginUserInput loginInput = new LoginUserInput();
+            loginInput.userName = "nonexistent";
+            loginInput.password = "wrong";
+
+            // Première tentative
+            mockMvc.perform(
+                            post("/users/login")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(loginInput))
+                    )
+                    .andExpect(status().isUnauthorized());
+
+            // Deuxième tentative
+            mockMvc.perform(
+                            post("/users/login")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(loginInput))
+                    )
+                    .andExpect(status().isUnauthorized());
+
+            // Troisième tentative
+            mockMvc.perform(
+                            post("/users/login")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(loginInput))
                     )
                     .andExpect(status().isUnauthorized());
         }

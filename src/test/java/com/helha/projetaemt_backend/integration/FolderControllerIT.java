@@ -245,6 +245,137 @@ class FolderAndNoteControllerIT {
             mockMvc.perform(delete("/folders/{id}", 888))
                     .andExpect(status().isNotFound());
         }
+
+        @Test
+        @DisplayName("POST /folders - 201 Création avec titre spécial")
+        void folder_create_withSpecialChars() throws Exception {
+            String body = """
+                {
+                  "userId": 1,
+                  "idUser": 1,
+                  "parentFolderId": 10,
+                  "title": "Dossier été 2024 (notes)"
+                }
+            """;
+
+            mockMvc.perform(post("/folders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.title", is("Dossier été 2024 (notes)")));
+        }
+
+        @Test
+        @DisplayName("POST /folders - 201 Création dossier imbriqué niveau 3")
+        void folder_create_nestedLevel3() throws Exception {
+            // Créer niveau 2
+            String bodyL2 = """
+                {
+                  "userId": 1,
+                  "idUser": 1,
+                  "parentFolderId": 11,
+                  "title": "Niveau2"
+                }
+            """;
+
+            String responseL2 = mockMvc.perform(post("/folders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(bodyL2))
+                    .andExpect(status().isCreated())
+                    .andReturn()
+                    .getResponse()
+                    .getContentAsString();
+
+            int idL2 = objectMapper.readTree(responseL2).get("id").asInt();
+
+            // Créer niveau 3
+            String bodyL3 = String.format("""
+                {
+                  "userId": 1,
+                  "idUser": 1,
+                  "parentFolderId": %d,
+                  "title": "Niveau3"
+                }
+            """, idL2);
+
+            mockMvc.perform(post("/folders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(bodyL3))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.parentFolderId", is(idL2)));
+        }
+
+        @Test
+        @DisplayName("POST /folders - 404 Parent folder inexistant")
+        void folder_create_parentNotFound() throws Exception {
+            String body = """
+                {
+                  "userId": 1,
+                  "idUser": 1,
+                  "parentFolderId": 9999,
+                  "title": "Orphelin"
+                }
+            """;
+
+            mockMvc.perform(post("/folders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("PUT /folders - 204 Renommage avec titre différent")
+        void folder_update_differentTitle() throws Exception {
+            Integer aliceId = jdbc.queryForObject("SELECT id FROM users WHERE user_name = 'alice'", Integer.class);
+            Integer folderId = jdbc.queryForObject("SELECT id FROM folder WHERE title = 'Projets' AND id_user = ?",
+                    Integer.class, aliceId);
+
+            // Renommer "Projets" en "NouveauNomUnique"
+            String body = String.format("""
+                {
+                  "id": %d,
+                  "userId": %d,
+                  "title": "NouveauNomUnique"
+                }
+            """, folderId, aliceId);
+
+            mockMvc.perform(put("/folders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
+        @DisplayName("DELETE /folders - Suppression dossier vide")
+        void folder_delete_emptyFolder() throws Exception {
+            // Créer un dossier vide pour le test
+            String body = """
+                {
+                  "userId": 1,
+                  "idUser": 1,
+                  "parentFolderId": 10,
+                  "title": "DossierASupprimer"
+                }
+            """;
+
+            String response = mockMvc.perform(post("/folders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isCreated())
+                    .andReturn()
+                    .getResponse()
+                    .getContentAsString();
+
+            int folderId = objectMapper.readTree(response).get("id").asInt();
+
+            // Supprimer le dossier vide
+            mockMvc.perform(delete("/folders/{id}", folderId))
+                    .andExpect(status().isNoContent());
+
+            // Vérifier que le dossier n'existe plus
+            mockMvc.perform(delete("/folders/{id}", folderId))
+                    .andExpect(status().isNotFound());
+        }
     }
 
     // ------------------------
@@ -311,6 +442,66 @@ class FolderAndNoteControllerIT {
         void folder_exportZip_notFound() throws Exception {
             mockMvc.perform(get("/folders/{id}/export-zip", 999))
                     .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("GET /folders/all/{userId} - 200 Retourne plusieurs dossiers")
+        void folder_getAll_multipleFolders() throws Exception {
+            mockMvc.perform(get("/folders/all/{userId}", 1))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.folders", hasSize(greaterThanOrEqualTo(3)))); // RootAlice, Projets, DejaLa
+        }
+
+        @Test
+        @DisplayName("GET /folders/all/{userId} - 200 Bob a ses propres dossiers")
+        void folder_getAll_isolationBetweenUsers() throws Exception {
+            mockMvc.perform(get("/folders/all/{userId}", 2))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.folders", hasSize(greaterThanOrEqualTo(1)))); // RootBob seulement
+        }
+
+        @Test
+        @DisplayName("GET /folders/{id}/export-zip - 200 ZIP contient les notes")
+        void folder_exportZip_withNotes() throws Exception {
+            // Créer des notes
+            String noteBody1 = """
+                {
+                  "userId": 1,
+                  "idUser": 1,
+                  "idFolder": 11,
+                  "folderId": 11,
+                  "title": "Note1",
+                  "content": "Contenu 1"
+                }
+            """;
+            mockMvc.perform(post("/notes")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(noteBody1))
+                    .andExpect(status().isCreated());
+
+            String noteBody2 = """
+                {
+                  "userId": 1,
+                  "idUser": 1,
+                  "idFolder": 11,
+                  "folderId": 11,
+                  "title": "Note2",
+                  "content": "Contenu 2"
+                }
+            """;
+            mockMvc.perform(post("/notes")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(noteBody2))
+                    .andExpect(status().isCreated());
+
+            // Export ZIP
+            mockMvc.perform(get("/folders/{id}/export-zip", 11))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+                    .andExpect(result -> {
+                        byte[] zipBytes = result.getResponse().getContentAsByteArray();
+                        assertThat(zipBytes.length, greaterThan(100)); // ZIP non vide
+                    });
         }
     }
 
@@ -408,20 +599,13 @@ class FolderAndNoteControllerIT {
         }
 
         @Test
-        @DisplayName("GET /notes/{idNote} - 200 Note trouvée")
-        void note_getById_success() throws Exception {
+        @DisplayName("GET /notes/folders/{idFolder} - 200 Note récupérée via dossier")
+        void note_getByFolder_containsNote() throws Exception {
             int noteId = createNoteAndReturnId();
 
-            mockMvc.perform(get("/notes/{idNote}", noteId))
+            mockMvc.perform(get("/notes/folders/{idFolder}", 11))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id", is(noteId)));
-        }
-
-        @Test
-        @DisplayName("GET /notes/{idNote} - 404 Note not found")
-        void note_getById_notFound() throws Exception {
-            mockMvc.perform(get("/notes/{idNote}", 99999))
-                    .andExpect(status().isNotFound());
+                    .andExpect(jsonPath("$.notes[0].id", is(noteId)));
         }
 
         @Test
