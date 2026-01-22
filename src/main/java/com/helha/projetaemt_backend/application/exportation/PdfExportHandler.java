@@ -29,12 +29,11 @@ public class PdfExportHandler {
         DbNote mainNote = noteRepository.findById(noteId)
                 .orElseThrow(() -> new RuntimeException("Note introuvable avec l'ID : " + noteId));
 
-        // Parse le contenu pour trouver les mentions
         org.jsoup.nodes.Document htmlDoc = Jsoup.parse(mainNote.content);
         Elements mentions = htmlDoc.select("span.note-mention");
 
         List<Integer> allIds = new ArrayList<>();
-        allIds.add(noteId); // note principale
+        allIds.add(noteId);
 
         for (Element mention : mentions) {
             String mentionedId = mention.attr("data-id");
@@ -43,7 +42,6 @@ public class PdfExportHandler {
             }
         }
 
-        // Récupère toutes les notes (principale + mentionnées)
         List<DbNote> notes = StreamSupport.stream(noteRepository.findAllById(allIds).spliterator(), false)
                 .collect(Collectors.toList());
 
@@ -51,4 +49,3 @@ public class PdfExportHandler {
     }
 
 }
-
