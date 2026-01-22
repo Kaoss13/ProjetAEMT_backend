@@ -4,6 +4,12 @@ import com.helha.projetaemt_backend.infrastructure.dossier.DbFolder;
 import com.helha.projetaemt_backend.infrastructure.dossier.IFolderRepository;
 import com.helha.projetaemt_backend.infrastructure.note.DbNote;
 import com.helha.projetaemt_backend.infrastructure.note.INoteRepository;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -81,10 +87,11 @@ public class ZipExportService {
         // Add each note as a Markdown file
         for (DbNote note : notes) {
             String fileName = note.title.replaceAll("\\s+", "_") + ".md";
+            String markdownContent = convertHtmlToMarkdown(note.content);
             String content = "# " + note.title + "\n\n" +
                     "Created on: " + note.createdAt + "\n" +
                     "Last updated: " + note.updatedAt + "\n\n" +
-                    note.content;
+                    markdownContent;
 
             zipOut.putNextEntry(new ZipEntry(path + "/" + fileName));
             zipOut.write(content.getBytes(StandardCharsets.UTF_8));
@@ -94,6 +101,177 @@ public class ZipExportService {
         // Recursively add subfolders
         for (DbFolder subFolder : subFolders) {
             addFolderToZip(zipOut, subFolder, path + "/" + subFolder.title);
+        }
+    }
+
+    /**
+     * Converts HTML content to Markdown format.
+     */
+    private String convertHtmlToMarkdown(String html) {
+        if (html == null || html.isEmpty()) {
+            return "";
+        }
+
+        Document doc = Jsoup.parse(html);
+        StringBuilder markdown = new StringBuilder();
+
+        for (Node node : doc.body().childNodes()) {
+            processNodeToMarkdown(node, markdown);
+        }
+
+        return markdown.toString().trim();
+    }
+
+    /**
+     * Recursively processes HTML nodes and converts them to Markdown.
+     */
+    private void processNodeToMarkdown(Node node, StringBuilder sb) {
+        if (node instanceof TextNode) {
+            sb.append(((TextNode) node).text());
+        } else if (node instanceof Element) {
+            Element el = (Element) node;
+            String tag = el.tagName().toLowerCase();
+
+            switch (tag) {
+                case "strong":
+                case "b":
+                    sb.append("**");
+                    for (Node child : el.childNodes()) processNodeToMarkdown(child, sb);
+                    sb.append("**");
+                    break;
+
+                case "em":
+                case "i":
+                    sb.append("*");
+                    for (Node child : el.childNodes()) processNodeToMarkdown(child, sb);
+                    sb.append("*");
+                    break;
+
+                case "u":
+                    sb.append("<u>");
+                    for (Node child : el.childNodes()) processNodeToMarkdown(child, sb);
+                    sb.append("</u>");
+                    break;
+
+                case "s":
+                case "strike":
+                case "del":
+                    sb.append("~~");
+                    for (Node child : el.childNodes()) processNodeToMarkdown(child, sb);
+                    sb.append("~~");
+                    break;
+
+                case "h1":
+                    sb.append("\n# ").append(el.text()).append("\n\n");
+                    break;
+
+                case "h2":
+                    sb.append("\n## ").append(el.text()).append("\n\n");
+                    break;
+
+                case "h3":
+                    sb.append("\n### ").append(el.text()).append("\n\n");
+                    break;
+
+                case "p":
+                    for (Node child : el.childNodes()) processNodeToMarkdown(child, sb);
+                    sb.append("\n\n");
+                    break;
+
+                case "br":
+                    sb.append("\n");
+                    break;
+
+                case "ul":
+                    sb.append("\n");
+                    for (Element li : el.select("> li")) {
+                        sb.append("- ");
+                        for (Node child : li.childNodes()) processNodeToMarkdown(child, sb);
+                        sb.append("\n");
+                    }
+                    sb.append("\n");
+                    break;
+
+                case "ol":
+                    sb.append("\n");
+                    int idx = 1;
+                    for (Element li : el.select("> li")) {
+                        sb.append(idx++).append(". ");
+                        for (Node child : li.childNodes()) processNodeToMarkdown(child, sb);
+                        sb.append("\n");
+                    }
+                    sb.append("\n");
+                    break;
+
+                case "blockquote":
+                    sb.append("\n> ").append(el.text().replace("\n", "\n> ")).append("\n\n");
+                    break;
+
+                case "code":
+                    sb.append("`").append(el.text()).append("`");
+                    break;
+
+                case "pre":
+                    sb.append("\n```\n").append(el.text()).append("\n```\n\n");
+                    break;
+
+                case "a":
+                    String href = el.attr("href");
+                    sb.append("[").append(el.text()).append("](").append(href).append(")");
+                    break;
+
+                case "hr":
+                    sb.append("\n---\n\n");
+                    break;
+
+                case "table":
+                    sb.append("\n");
+                    convertTableToMarkdown(el, sb);
+                    sb.append("\n");
+                    break;
+
+                case "span":
+                    // Handle mentions
+                    if (el.hasClass("note-mention")) {
+                        String label = el.attr("data-label");
+                        if (label.isEmpty()) label = el.text();
+                        sb.append("@").append(label);
+                    } else {
+                        for (Node child : el.childNodes()) processNodeToMarkdown(child, sb);
+                    }
+                    break;
+
+                default:
+                    for (Node child : el.childNodes()) processNodeToMarkdown(child, sb);
+            }
+        }
+    }
+
+    /**
+     * Converts an HTML table to Markdown table format.
+     */
+    private void convertTableToMarkdown(Element table, StringBuilder sb) {
+        Elements rows = table.select("tr");
+        if (rows.isEmpty()) return;
+
+        boolean isFirstRow = true;
+        for (Element row : rows) {
+            Elements cells = row.select("th, td");
+            sb.append("|");
+            for (Element cell : cells) {
+                sb.append(" ").append(cell.text()).append(" |");
+            }
+            sb.append("\n");
+
+            // Add separator after header row
+            if (isFirstRow) {
+                sb.append("|");
+                for (int i = 0; i < cells.size(); i++) {
+                    sb.append(" --- |");
+                }
+                sb.append("\n");
+                isFirstRow = false;
+            }
         }
     }
 }
